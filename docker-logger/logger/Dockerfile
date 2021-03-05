@@ -35,7 +35,7 @@ RUN \
   # apt-get install -y  python-pip && \
   apt-get install -y  python3-pip && \
   ln -s /usr/bin/pip3 /usr/bin/pip && \
-  git clone --branch $REPO_BRANCH https://github.com/InnopolisUniversity/innometrics-backend logger && \
+  git clone https://github.com/InnopolisUniversity/innometrics-backend logger && \
   cd logger && \
   # rm config.ini && \
   rm requirements.txt && \

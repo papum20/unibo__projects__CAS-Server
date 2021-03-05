@@ -1,16 +1,16 @@
 web:
   image: 'gitlab/gitlab-ee:latest'
-  restart: always
+  restart: unless-stopped
   hostname: 'gitlab.example.com'
   environment:
     GITLAB_OMNIBUS_CONFIG: |
-      external_url 'https://gitlab.example.com'
-      # Add any other gitlab.rb configuration here, each on its own line
+      external_url 'http://localhost:8929'
+      gitlab_rails['gitlab_shell_ssh_port'] = 2224
   ports:
-    - '1080:80'
-    - '1443:443'
-    - '1022:22'
+    - '9001:9001'
+    - '2224:22'
   volumes:
-    - './config:/etc/gitlab'
-    - './logs:/var/log/gitlab'
-    - './data:/var/opt/gitlab'
+    - '$GITLAB_HOME/config:/etc/gitlab'
+    - '$GITLAB_HOME/logs:/var/log/gitlab'
+    - '$GITLAB_HOME/data:/var/opt/gitlab'
+  restart: unless-stopped

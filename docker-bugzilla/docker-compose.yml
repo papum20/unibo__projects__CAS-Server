@@ -1,5 +1,5 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
-# Licence, v. 2.00. If a copy of the MPL was not distributed with this
+# License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 # This Source Code Form is "Incompatible With Secondary Licenses", as
@@ -8,8 +8,9 @@
 version: '2'
 services:
   bugzilla:
-    container_name: bugzilla-dev
+    container_name: bugzilla
     image: bugzilla/bugzilla-dev
     ports:
-      - "5080:80"
+      - "9005:80"
       - "5900:5900"
+    restart: unless-stopped

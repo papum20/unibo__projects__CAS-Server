@@ -5,10 +5,11 @@ services:
     privileged: true
     user: root
     ports:
-      - 7080:8080
+      - 9004:8080
       - 50000:50000
     container_name: jenkins
     volumes:
-      - ~/jenkins:/var/jenkins_home
+      - ./jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/local/bin/docker:/usr/local/bin/docker
+    restart: unless-stopped

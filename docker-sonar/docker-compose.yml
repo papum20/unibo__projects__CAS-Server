@@ -1,43 +1,35 @@
-version: "2"
+version: "3"
 
 services:
   sonarqube:
-    image: sonarqube:8.2-community
-    container_name: sonarqube
-    ports:
-      - "4080:9000"
-    networks:
-      - sonarnet
+    image: sonarqube:8-community
+    depends_on:
+      - db
     environment:
-      - sonar.jdbc.url=jdbc:postgresql://db:5432/sonar
-      - sonar.web.context=/sonarqube
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
     volumes:
-      - sonarqube_conf:/opt/sonarqube/conf
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
-    restart: always
+      - sonarqube_logs:/opt/sonarqube/logs
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
 
   db:
-    image: postgres:11.2
-    container_name: sonar_db
-    networks:
-      - sonarnet
+    image: postgres:12
     environment:
-      - POSTGRES_USER=sonarqube
-      - POSTGRES_PASSWORD=sonarqube
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
     volumes:
-      - sonarqube_postgresql:/var/lib/postgresql
-      # This needs explicit mapping due to https://github.com/docker-library/postgres/blob/4e48e3228a30763913ece952c611e5e9b95c8759/Dockerfile.template#L52
-      - sonarqube_postgresql_data:/var/lib/postgresql/data
-    restart: always
-
-networks:
-  sonarnet:
-    driver: bridge
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
 volumes:
-  sonarqube_conf:
   sonarqube_data:
   sonarqube_extensions:
-  sonarqube_postgresql:
-  sonarqube_postgresql_data:
+  sonarqube_logs:
+  postgresql:
+  postgresql_data:

@@ -1,41 +1,27 @@
 #!/bin/bash
 programname=$0
-DEFAUTL_CAS_VERSION=1.0.0
+DEFAULT_CAS_VERSION=2.0.0
 
-
-function printLogo
-{
-	echo "                                                                        ";
-	echo "                                                                        ";
-	echo "        CCCCCCCCCCCCC               AAA                 SSSSSSSSSSSSSSS ";
-	echo "     CCC::::::::::::C              A:::A              SS:::::::::::::::S";
-	echo "   CC:::::::::::::::C             A:::::A            S:::::SSSSSS::::::S";
-	echo "  C:::::CCCCCCCC::::C            A:::::::A           S:::::S     SSSSSSS";
-	echo " C:::::C       CCCCCC           A:::::::::A          S:::::S            ";
-	echo "C:::::C                        A:::::A:::::A         S:::::S            ";
-	echo "C:::::C                       A:::::A A:::::A         S::::SSSS         ";
-	echo "C:::::C                      A:::::A   A:::::A         SS::::::SSSSS    ";
-	echo "C:::::C                     A:::::A     A:::::A          SSS::::::::SS  ";
-	echo "C:::::C                    A:::::AAAAAAAAA:::::A            SSSSSS::::S ";
-	echo "C:::::C                   A:::::::::::::::::::::A                S:::::S";
-	echo " C:::::C       CCCCCC    A:::::AAAAAAAAAAAAA:::::A               S:::::S";
-	echo "  C:::::CCCCCCCC::::C   A:::::A             A:::::A  SSSSSSS     S:::::S";
-	echo "   CC:::::::::::::::C  A:::::A               A:::::A S::::::SSSSSS:::::S";
-	echo "     CCC::::::::::::C A:::::A                 A:::::AS:::::::::::::::SS ";
-	echo "        CCCCCCCCCCCCCAAAAAAA                   AAAAAAASSSSSSSSSSSSSSS   ";
-	echo "                                                                        ";
-	echo "                                                                        ";
-	echo "                                                                        ";
-	echo "                                                                        ";
-	echo "                                                                        ";
-	echo "                                                                        ";
-	echo "                                                                        ";
+function printLogo() {
+  echo "  ######################################################################"
+  echo "  #                                                                    #"
+  echo "  #     ,o888888o.           .8.            d888888o.                  #"
+  echo "  #    8888     '88.        .888.         .'8888:' '88.                #"
+  echo "  # ,8 8888       '8.      :88888.        8.'8888.   Y8                #"
+  echo "  # 88 8888               . '88888.       '8.'8888.                    #"
+  echo "  # 88 8888              .8. '88888.       '8.'8888.                   #"
+  echo "  # 88 8888             .8'8. '88888.       '8.'8888.                  #"
+  echo "  # 88 8888            .8' '8. '88888.       '8.'8888.     _   _   _   #"
+  echo "  # '8 8888       .8' .8'   '8. '88888.  8b   '8.'8888.   / \ / \ / \  #"
+  echo "  #    8888     ,88' .888888888. '88888. '8b.  ;8.'8888  ( 2 ( . ( 0 ) #"
+  echo "  #     '8888888P'  .8'       '8. '88888. 'Y8888P ,88P'   \_/ \_/ \_/  #"
+  echo "  #                                                                    #"
+  echo "  ######################################################################"
 }
 
 # Print usage guide
-function usage {
-  echo "usage: $programname COMMAND"
-  echo "  -------- COMMANDS -------"
+function usage (){
+  echo "  ----------------------------- COMMANDS ----------------------------------"
   echo "  -i {site url} [version number]   Verify requirements and start installation"
   echo "  -r                               Start the system"
   echo "  -s                               Stop the system"
@@ -85,14 +71,19 @@ function install() {
   cd docker-mattermost
   sudo docker-compose build
   mkdir -pv ./volumes/app/mattermost/{data,logs,config,plugins,client-plugins}
-  sudo chown -R 2000:2000 ./volumes/app/mattermost/
+  sudo chmod -R 755 ./volumes/app/mattermost/
   sudo docker-compose up -d
 
   # Start Sonarqube INSTALLATION
   cd ../
   echo "  [INSTALL 5/10] Installing Sonarqube"
   cd docker-sonar
+  echo "  Fix WM MAX MAP COUNT "
+  sudo sysctl -w vm.max_map_count=262144
+  echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
   sudo docker-compose up -d
+
+
 
   # Start Taiga INSTALLATION
   cd ../
@@ -107,6 +98,14 @@ function install() {
   cd docker-bugzilla
   sudo docker-compose build
   sudo docker-compose up -d
+  echo "  Configuring Bugzilla ..."
+  sleep 10
+  sudo docker exec -it bugzilla su -- bugzilla -c  "mysql -h localhost -u root -Bse \"create database bugs; \
+   CREATE USER 'bugs'@'localhost' IDENTIFIED BY 'bugs'; \
+   SELECT User FROM mysql.user; \
+   GRANT ALL PRIVILEGES ON *.* TO 'bugs'@'localhost' WITH GRANT OPTION;\"; \
+   cd /var/www/html/bugzilla/; \
+   ./checksetup.pl"
 
   # Start Logger INSTALLATION
   cd ../

@@ -1,0 +1,16 @@
+{
+    "api": "http://192.168.1.10:9002/api/v1/",
+    "eventsUrl": "ws://192.168.1.10:9002/events/",
+    "eventsMaxMissedHeartbeats": 5,
+    "eventsHeartbeatIntervalTime": 15000,
+    "debug": true,
+    "debugInfo": false,
+    "defaultLanguage": "en",
+    "publicRegisterEnabled": false,
+    "gravatar": true,
+    "feedbackEnabled": false,
+    "privacyPolicyUrl": null,
+    "termsOfServiceUrl": null,
+    "maxUploadFileSize": null,
+    "contribPlugins": []
+}

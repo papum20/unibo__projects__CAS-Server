@@ -1,31 +1,81 @@
-version: "3.2"
-volumes:
-  database:
-  media:
+version: '3'
+
 services:
-  database:
-    image: postgres:11
-    environment:
-      POSTGRES_DB: taiga
-      POSTGRES_PASSWORD: taiga
-      POSTGRES_USER: taiga
-    stop_signal: SIGINT
+  back:
+    image: dockertaiga/back:6.0.1
+    container_name: taiga-back
+    restart: unless-stopped
+    depends_on:
+      - db
+      - events
+    networks:
+      - default
     volumes:
-      - database:/var/lib/postgresql/data
-  server:
-    image: devinsolutions/taiga:latest
-    command:
-      - migrate
-      # Make sure this command is run only during the initial setup as it will
-      # overwrite existing data.
-      # - populate-db
-      - run-server
-    healthcheck:
-      test: wget -q -t 1 --spider http://localhost:8080/api/v1/
+      - ./data/media:/taiga-media
+      - ./conf/back:/taiga-conf
+    env_file:
+      - variables.env
+
+  front:
+    image: dockertaiga/front:6.0.1
+    container_name: taiga-front
+    restart: unless-stopped
+    networks:
+      - default
+    volumes:
+      - ./conf/front:/taiga-conf
+    env_file:
+      - variables.env
+      
+  events:
+    image: dockertaiga/events:6.0.0
+    container_name: taiga-events
+    restart: unless-stopped
+    depends_on:
+      - rabbit
+    networks:
+      - default
+    env_file:
+      - variables.env
+
+  db:
+    image: postgres:12-alpine
+    container_name: taiga-db
+    restart: unless-stopped
+    networks:
+      - default
+    env_file:
+      - variables.env
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+
+  rabbit:
+    image: dockertaiga/rabbit
+    container_name: taiga-rabbit
+    restart: unless-stopped
+    networks:
+      - default
+    env_file:
+      - variables.env
+
+  proxy:
+    image: dockertaiga/proxy
+    container_name: taiga-proxy
+    restart: unless-stopped
+    depends_on:
+      - back
+      - front
+      - events
+    networks:
+      - default
     ports:
-      - 2080:8080
-    stop_signal: SIGHUP
+      - 9002:80
+      - 1443:443
     volumes:
-      - media:/srv/taiga-back/media
-      - ./docker-compose/front.json:/etc/opt/taiga-front/conf.json:ro
-      - ./docker-compose/settings.py:/etc/opt/taiga-back/settings.py:ro
+      #- ./cert:/taiga-cert
+      - ./conf/proxy:/taiga-conf
+    env_file:
+      - variables.env
+
+networks:
+  default:
