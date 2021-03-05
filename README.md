@@ -1,88 +1,74 @@
 # CAS docker-compose configurations
 
-======================================================
-Sonarqube
-======================================================
+## Sonarqube
 
-port: 9000
-default username: admin
-default password: admin
-
+Data | value
+-----|-----
+port | 9000
+user | admin
+password | admin
 
 Need this fix
-# sysctl -w vm.max_map_count=262144 
-And for the persistence configuration
-# echo "vm.max_map_count=262144" >> /etc/sysctl.conf
+```bash
+  $ sysctl -w vm.max_map_count=262144
+  $ echo "vm.max_map_count=262144" >> /etc/sysctl.conf
+```
 
+## Gitlab
 
-=====================================================
-Gitlab
-=====================================================
-Port: 9001
-user: root
-password: set at first login
+  Data | value
+  -----|-----
+  port | 9001
+  user | root
+  password | Set at first login
 
+## Taiga
 
-=====================================================
-Taiga
-=====================================================
+Data | value
+-----|-----
+Port |9002
+username | admin
+password | 123123
 
-Port:9002
-default username: admin
-default password: 123123
-
-Configurazione taiga front
-# sostituire in /conf/front
+#### Sostituire in /conf/front
+```
     "api": "http://"your-ip":9002/api/v1/",
     "event":null,
+```
 
-=====================================================
-Mattermost 
-=====================================================
+## Mattermost
+Data | value
+-----|-----
+Port | 9003
 
-Port: 9003
+#### configuration
+``` bash
+docker-compose build
+mkdir -pv ./volumes/app/mattermost/{data,logs,config,plugins,client-plugins}
+sudo chmod -R 777 ./volumes/app/mattermost/
+```
 
-Need build
-#docker-compose build
-Need create dirs
-#mkdir -pv ./volumes/app/mattermost/{data,logs,config,plugins,client-plugins}
-Need access
-#sudo chmod -R 777 ./volumes/app/mattermost/
+## Jenkins
+Data | value
+-----|-----
+Port | 9004
 
-=====================================================
-Jenkins
-=====================================================
+## Bugzilla
+  Data | value
+  -----|-----
+  Port | 9005
 
-Port: 9004
-
-
-=====================================================
-Bugzilla
-=====================================================
-
-Port: 9005
-Accessibile da URL:9005/bugzilla
-
-Need configuration
-#enter docker container
+#### Configuration
+```bash
 $ sudo docker exec -it bugzilla su -- bugzilla
+$ [docker] mysql -h localhost -u root
+$ [mysql] CREATE database bugs;
+$ [mysql]CREATE USER 'bugs'@'localhost' IDENTIFIED BY 'bugs';
+$ [mysql]SELECT User FROM mysql.user;
+$ [mysql]GRANT ALL PRIVILEGES ON *.* TO 'bugs'@'localhost' WITH GRANT OPTION;
+$ [mysql]SHOW GRANTS FOR 'bugs'@'localhost';
+$ [docker] cd /var/www/html/bugzilla/
+$ [docker]./checksetup.pl
+```
 
-#enter mysql console
-$ mysql -h localhost -u root
-$ CREATE database bugs;
-$ CREATE USER 'bugs'@'localhost' IDENTIFIED BY 'bugs';
-$ SELECT User FROM mysql.user;
-$ GRANT ALL PRIVILEGES ON *.* TO 'bugs'@'localhost' WITH GRANT OPTION;
-$ SHOW GRANTS FOR 'bugs'@'localhost';
-$ exit
-
-#complete setup
-$ cd /var/www/html/bugzilla/
-$ ./checksetup.pl
-
-
-
-TODO: 
-	-verificare mysql commands for bugzilla installation in cas.sh
-  	-verificare se altri servizi funzionano(altrimenti prendere docker-compose da cas server installato su altra macchina)
-	
+#### Accessibile da {URL}:9005/bugzilla
