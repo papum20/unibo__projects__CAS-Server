@@ -8,8 +8,6 @@ services:
       - 27017:27017
     environment:
       - MONGO_INITDB_DATABASE=logger
-      - MONGO_INITDB_ROOT_USERNAME=logger
-      - MONGO_INITDB_ROOT_PASSWORD=logger
     volumes:
       # seeding scripts
       - ./mongo-entrypoint:/docker-entrypoint-initdb.d
@@ -17,7 +15,7 @@ services:
       - logger_data:/data/db
       - logger_conf:/data/configdb
     networks:
-      - logger_net
+      - default
     restart: always
 
   logger:
@@ -34,7 +32,7 @@ services:
     ports:
       - 8120:8120
     networks:
-      - logger_net
+      - default
     depends_on:
       - mongodb
     restart: always
@@ -45,5 +43,4 @@ volumes:
   logger_conf:
 
 networks:
-  logger_net:
-    driver: bridge
+  default:

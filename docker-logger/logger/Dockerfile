@@ -24,20 +24,14 @@ SHELL ["/bin/bash", "-c"]
 
 # Install.
 RUN \
-  # apt-get update && \
-  # apt-get install -y software-properties-common && \
-  # add-apt-repository ppa:jonathonf/python-3.6 && \
   apt-get update && \
   apt-get -y upgrade && \
-  # apt-get install -y python3.6 && \
   apt-get install -y git && \
   apt-get install -y virtualenv && \
-  # apt-get install -y  python-pip && \
   apt-get install -y  python3-pip && \
   ln -s /usr/bin/pip3 /usr/bin/pip && \
-  git clone https://github.com/InnopolisUniversity/innometrics-backend logger && \
+  git clone https://github.com/elPeron/logger-backend logger && \
   cd logger && \
-  # rm config.ini && \
   rm requirements.txt && \
   mkdir logs && \
   touch logs/errors.log && \
@@ -56,7 +50,7 @@ RUN \
 
 
 # Add files.
-#ADD config_proudction.ini ./logger
+ADD config_proudction.ini ./logger
 ADD requirements.txt ./logger
 ADD run.sh ./logger
 

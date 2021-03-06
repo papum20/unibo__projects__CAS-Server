@@ -72,3 +72,15 @@ $ [docker]./checksetup.pl
 ```
 
 #### Accessibile da {URL}:9005/bugzilla
+
+## Logger-server
+  Data | value
+  -----|-----
+  Port | 9005
+
+Optional: can update CORS origin
+```bash
+docker exec -it logger su
+[docker] apt install nano
+[docker] nano api/config.py
+```
