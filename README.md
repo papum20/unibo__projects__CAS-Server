@@ -76,7 +76,7 @@ $ [docker]./checksetup.pl
 ## Logger-server
   Data | value
   -----|-----
-  Port | 9005
+  Port | 8120
 
 Optional: can update CORS origin
 ```bash
@@ -84,3 +84,10 @@ docker exec -it logger su
 [docker] apt install nano
 [docker] nano api/config.py
 ```
+
+## Dashboard
+  Data | value
+  -----|-----
+  Port | 9010
+
+Works with Logger-server as BackEnd.
