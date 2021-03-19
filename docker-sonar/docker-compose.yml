@@ -1,7 +1,8 @@
-version: "3"
+version: "3.5"
 
 services:
   sonarqube:
+    container_name: sonarqube
     image: sonarqube:8-community
     depends_on:
       - db
@@ -15,10 +16,15 @@ services:
       - sonarqube_logs:/opt/sonarqube/logs
     ports:
       - "9000:9000"
+    networks:
+      - def
     restart: unless-stopped
 
   db:
+    container_name: sonar-db
     image: postgres:12
+    networks:
+      - def
     environment:
       POSTGRES_USER: sonar
       POSTGRES_PASSWORD: sonar
@@ -26,6 +32,23 @@ services:
       - postgresql:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data
     restart: unless-stopped
+
+  proxy:
+    container_name: sonar-proxy
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/share/nginx/html
+    ports:
+      - "8121:80"
+    restart: always
+    networks:
+      - def
+
+networks:
+  def:
+    driver: bridge
 
 volumes:
   sonarqube_data:

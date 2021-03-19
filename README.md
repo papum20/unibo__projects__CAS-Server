@@ -7,6 +7,7 @@ Data | value
 port | 9000
 user | admin
 password | admin
+proxyPort| 8121
 
 Need this fix
 ```bash
@@ -30,10 +31,15 @@ Port |9002
 username | admin
 password | 123123
 
-#### Sostituire in /conf/front
+#### Sostituire in /conf/front/config.json
 ```
     "api": "http://"your-ip":9002/api/v1/",
     "event":null,
+    "publicRegisterEnabled": true,
+```
+#### Impostare in /conf/back/config.py
+```
+    PUBLIC_REGISTER_ENABLED = True
 ```
 
 ## Mattermost
