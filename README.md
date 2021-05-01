@@ -4,10 +4,10 @@
 
 Data | value
 -----|-----
-port | 9000
 user | admin
 password | admin
-proxyPort| 8121
+httpPort| 8121
+httpsPort| 8122
 
 Need this fix
 ```bash
@@ -19,7 +19,8 @@ Need this fix
 
   Data | value
   -----|-----
-  port | 9001
+  httpPort | 9011
+  httpsPort | 9021
   user | root
   password | Set at first login
 
@@ -28,13 +29,17 @@ Need this fix
 Data | value
 -----|-----
 Port |9002
+HttpsPort|9012
 username | admin
 password | 123123
 
+### pre-installazione
+#### Sostituire in variables.env
+    TAIGA_HOST="yourIp"
+
+###post-installazione
 #### Sostituire in /conf/front/config.json
 ```
-    "api": "http://"your-ip":9002/api/v1/",
-    "event":null,
     "publicRegisterEnabled": true,
 ```
 #### Impostare in /conf/back/config.py
@@ -46,6 +51,7 @@ password | 123123
 Data | value
 -----|-----
 Port | 9003
+HttpsPort|9122
 
 #### configuration
 ``` bash
@@ -57,7 +63,13 @@ sudo chmod -R 777 ./volumes/app/mattermost/
 ## Jenkins
 Data | value
 -----|-----
-Port | 9004
+HttpPort | 9004
+HttpsPort | 9014
+
+Recupero password
+```
+$ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
 
 ## Bugzilla
   Data | value

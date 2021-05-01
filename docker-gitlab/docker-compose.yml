@@ -1,16 +1,22 @@
-web:
-  image: 'gitlab/gitlab-ee:latest'
-  restart: unless-stopped
-  hostname: 'gitlab.example.com'
-  environment:
-    GITLAB_OMNIBUS_CONFIG: |
-      external_url 'http://localhost:9001'
-      gitlab_rails['gitlab_shell_ssh_port'] = 2224
-  ports:
-    - '9001:9001'
-    - '2224:22'
-  volumes:
-    - '$GITLAB_HOME/config:/etc/gitlab'
-    - '$GITLAB_HOME/logs:/var/log/gitlab'
-    - '$GITLAB_HOME/data:/var/opt/gitlab'
-  restart: unless-stopped
+version: "3"
+
+services:
+  gitlab:
+    container_name: gitlab
+    image: 'gitlab/gitlab-ee:latest'
+    restart: unless-stopped
+    hostname: 'gitlab.example.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://www.stefanopropato.it/gitlab'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        letsencrypt['enable'] = false
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+    ports:
+      - '9001:80'
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    restart: unless-stopped

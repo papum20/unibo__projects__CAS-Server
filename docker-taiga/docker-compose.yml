@@ -13,6 +13,8 @@ services:
     volumes:
       - ./data/media:/taiga-media
       - ./conf/back:/taiga-conf
+    ports:
+      - 8001:80
     env_file:
       - variables.env
 
@@ -26,7 +28,10 @@ services:
       - ./conf/front:/taiga-conf
     env_file:
       - variables.env
-      
+    ports:
+      - 9000:80
+    restart: always
+
   events:
     image: dockertaiga/events:6.0.0
     container_name: taiga-events
@@ -37,6 +42,8 @@ services:
       - default
     env_file:
       - variables.env
+    ports:
+      - 8888:8888
 
   db:
     image: postgres:12-alpine
@@ -69,8 +76,8 @@ services:
     networks:
       - default
     ports:
-      - 9002:80
-      - 1443:443
+      - 9001:80
+      - 4443:443
     volumes:
       #- ./cert:/taiga-cert
       - ./conf/proxy:/taiga-conf

@@ -26,6 +26,9 @@ WORKDIR /root/CAS-dashboard
 
 # install app dependencies
 RUN yarn
-
+COPY ./configs/dashboard.json ./package.json
+COPY ./configs/dashboard.js ./src/services/config.js
+RUN yarn build
+RUN yarn global add serve
 # start app
-CMD ["yarn", "start"]
+CMD serve -s build

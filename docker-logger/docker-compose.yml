@@ -4,8 +4,6 @@ services:
   mongodb:
     image: mongo:4.0.6
     container_name: logger_mongodb
-    ports:
-      - 27017:27017
     environment:
       - MONGO_INITDB_DATABASE=logger
     volumes:
@@ -15,7 +13,7 @@ services:
       - logger_data:/data/db
       - logger_conf:/data/configdb
     networks:
-      - default
+      - def
     restart: always
 
   logger:
@@ -32,15 +30,18 @@ services:
     ports:
       - 8120:8120
     networks:
-      - default
+      - def
     depends_on:
       - mongodb
     restart: always
+
+
+networks:
+  def:
+    driver: bridge
+
 
 volumes:
   # default dir on Ubuntu: /var/lib/docker/volumes
   logger_data:
   logger_conf:
-
-networks:
-  default:

@@ -22,11 +22,10 @@ function printLogo() {
 # Print usage guide
 function usage (){
   echo "  ----------------------------- COMMANDS ----------------------------------"
-  echo "  -i {site url} [version number]   Verify requirements and start installation"
+  echo "  -i                               Verify requirements and start installation"
   echo "  -r                               Start the system"
   echo "  -s                               Stop the system"
   echo "  -d                               Remove the system"
-  echo "  -u {version number}              Search for updates"
   echo "  -h                               Show help"
   exit 1
 }
@@ -34,7 +33,7 @@ function usage (){
 function install() {
   echo "Starting CAS System Installation v. $1"
   # Checking for requirements
-  echo "  [INSTALL 1/10] Checking requirements.."
+  echo "  [INSTALL 1/7] Checking requirements.."
   if exists docker; then
     echo "    DOCKER .............................. OK";
   else
@@ -47,89 +46,60 @@ function install() {
     echo "    DOCKER-COMPOSE ...................... NOT FOUND";
     sudo apt-get install docker-compose;
   fi
+  echo "  [INSTALL 2/7] Get certificate for TLS Encrypt"
+  sudo snap install core
+  sudo snap refresh core
+  sudo snap install --classic certbot
 
-  if exists nginx; then
-    echo "    NGINX ............................... OK";
+  read -r -p "Have you domain for install TLS? [y/N] " response
+  if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+  then
+    echo -n "Enter domain for TLS certificate: "
+    read domain
+    sudo certbot certonly --nginx -d $domain || (echo "[ERROR] Insert valid domain."; exit) ;
+    sed -i "s/TAIGA_HOST=.*/TAIGA_HOST=$domain/" ./configs/taiga.env;
+    sed -i "s/TAIGA_PORT=.*/TAIGA_PORT=443/" ./configs/taiga.env;
+    sed -i "s/TAIGA_SCHEME=.*/TAIGA_SCHEME=https/" ./configs/taiga.env;
+    sed -i "s/URL:.*/URL: \x22 https:\/\/$domain\x22,/" ./configs/dashboard.js;
+    sed -i "s/PORT_NUMBER:.*/PORT_NUMBER: \x22442\x22,/" ./configs/dashboard.js;
+    sed -i "s/external_url .*/external_url \x27https:\/\/$domain\/gitlab\x27/" ./docker-compose.yml;
+    sed -i "s/\x22homepage\x22:.*/\x22homepage\x22:\x22https:\/\/$domain\/dashboard\x22,/" ./configs/dashboard.json;
+    sed -i "s/_.*/_https.conf \/etc\/nginx\/conf.d\/default.conf/" ./docker-nginx/Dockerfile;
+    sed -i "s/server_name .*/server_name   $domain;/" ./docker-nginx/default_https.conf
   else
-    echo "    NGINX ............................... NOT FOUND";
-    sudo apt-get install nginx;
+    echo "[INFO] CAS-server will install on localhost";
+    sed -i "s/TAIGA_HOST=.*/TAIGA_HOST=localhost/" ./configs/taiga.env;
+    sed -i "s/TAIGA_PORT=.*/TAIGA_PORT=80/" ./configs/taiga.env;
+    sed -i "s/TAIGA_SCHEME=.*/TAIGA_SCHEME=http/" ./configs/taiga.env;
+    sed -i "s/URL:.*/URL: \x22 http:\/\/localhost\x22,/" ./configs/dashboard.js;
+    sed -i "s/PORT_NUMBER:.*/PORT_NUMBER: \x2280\x22,/" ./configs/dashboard.js;
+    sed -i "s/external_url .*/external_url \x27http:\/\/localhost\/gitlab\x27/" ./docker-compose.yml;
+    sed -i "s/\x22homepage\x22:.*/\x22homepage\x22:\x22http:\/\/localhost\/dashboard\x22,/" ./configs/dashboard.json;
+    sed -i "s/_.*/_http.conf \/etc\/nginx\/conf.d\/default.conf/" ./docker-nginx/Dockerfile;
   fi
 
   # Change file permissions
-  echo "  [INSTALL 2/10] Change file permissions"
+  echo "  [INSTALL 3/7] Change file permissions"
   sudo chmod 755 -R *
 
-  # Start Gitlab INSTALLATION
-  echo "  [INSTALL 3/10] Installing GitLab"
-  echo "Creating volumes for GitLab..."
-  cd docker-gitlab
-  sudo docker-compose up -d
+  echo "  [INSTALL 4/8] Check old configs"
+  sudo docker volume rm -f cas-server_taiga_conf cas-server_gitlab_config cas-server_logger_conf cas-server_mattermost_config
 
-  # Start Mattermost INSTALLATION
-  cd ../
-  echo "  [INSTALL 4/10] Installing Mattermost"
+  echo "  [INSTALL 4/7] Installing CAS-server"
+  sudo docker-compose build --no-cache
+
+  echo "  [INSTALL 5/7] Finalization"
   cd docker-mattermost
-  sudo docker-compose build
-  mkdir -pv ./volumes/app/mattermost/{data,logs,config,plugins,client-plugins}
-  sudo chmod -R 755 ./volumes/app/mattermost/
-  sudo docker-compose up -d
-
-  # Start Sonarqube INSTALLATION
-  cd ../
-  echo "  [INSTALL 5/10] Installing Sonarqube"
-  cd docker-sonar
-  echo "  Fix WM MAX MAP COUNT "
+  sudo chmod -R 777 ./config
   sudo sysctl -w vm.max_map_count=262144
   echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
-  sudo docker-compose up -d
-
-
-
-  # Start Taiga INSTALLATION
   cd ../
-  echo "  [INSTALL 6/10] Installing Taiga"
-  cd docker-taiga
-  sudo docker-compose build
+
+  echo "  [INSTALL 6/7] Starting server"
   sudo docker-compose up -d
-
-  # Start Bugzilla INSTALLATION
-  cd ../
-  echo "  [INSTALL 7/10] Installing Bugzilla"
-  cd docker-bugzilla
-  sudo docker-compose build
-  sudo docker-compose up -d
-  echo "  Configuring Bugzilla ..."
-  sleep 10
-  sudo docker exec -it bugzilla su -- bugzilla -c  "mysql -h localhost -u root -Bse \"create database bugs; \
-   CREATE USER 'bugs'@'localhost' IDENTIFIED BY 'bugs'; \
-   SELECT User FROM mysql.user; \
-   GRANT ALL PRIVILEGES ON *.* TO 'bugs'@'localhost' WITH GRANT OPTION;\"; \
-   cd /var/www/html/bugzilla/; \
-   ./checksetup.pl"
-
-  # Start Logger INSTALLATION
-  cd ../
-  echo "  [INSTALL 8/10] Installing Logger"
-  cd docker-logger
-  sudo docker-compose build
-  sudo docker-compose up -d
-
-  # Start Jenkins INSTALLATION
-  cd ../
-  echo "  [INSTALL 9/10] Installing Jenkins"
-  cd docker-jenkins
-  sudo docker-compose up -d
-
-  # Wait for operation completion
-  echo "  [INSTALL 10/10] Waiting for operations' completion"
-  cd ../../
-  sudo service nginx stop
-
-  sudo service nginx restart
-  sleep 10
 
   # Operation completion, print information data
-  echo "  [INSTALL 10/10] Installation Completed"
+  echo "  [INSTALL 7/7] CAS-Server is up and running"
 }
 
 
@@ -137,165 +107,27 @@ function install() {
 # Run all services
 function startAll {
   echo "Starting CAS System..."
-
-  # Start Gitlab
-  echo "  [START 1/9] Starting GitLab"
-  cd docker-gitlab
   sudo docker-compose start
-
-  # Start Mattermost
-  cd ../
-  echo "  [START 2/9] Starting Mattermost"
-  cd docker-mattermost
-  sudo docker-compose start
-
-  # Start Sonarqube
-  cd ../
-  echo "  [START 3/9] Starting Sonarqube"
-  cd docker-sonar
-  sudo docker-compose start
-
-  # Start Taiga
-  cd ../
-  echo "  [START 4/9] Starting Taiga"
-  cd docker-taiga
-  sudo docker-compose start
-
-  # Start Bugzilla
-  cd ../
-  echo "  [START 5/9] Starting Bugzilla"
-  cd docker-bugzilla
-  sudo docker-compose start
-
-  # Start Logger
-  cd ../
-  echo "  [START 6/9] Starting Logger"
-  cd docker-logger
-  sudo docker-compose start
-
-  cd ../
-  echo "  [START 7/9] Starting Jenkins"
-  cd docker-jenkins
-  sudo docker-compose start
-
-  # Wait for operation completion
-  echo "  [START 8/9] Waiting for operations' completion"
 
   # Operation completion, print information data
-  echo "  [START 9/9] All services are now running"
+  echo "All services are now running"
 }
 
 
 # Stop all services
 function stopAll {
   echo "Stopping CAS System..."
-  cd cas-components
-
-  # Stop Gitlab
-  echo "  [STOP 1/9] Stopping GitLab"
-  cd docker-gitlab
   sudo docker-compose stop
-
-
-  # Stop Mattermost
-  cd ../
-  echo "  [STOP 2/9] Stopping Mattermost"
-  cd docker-mattermost
-  sudo docker-compose stop
-
-  # Stop Sonarqube
-  cd ../
-  echo "  [STOP 3/9] Stopping Sonarqube"
-  cd docker-sonar
-  sudo docker-compose stop
-
-  # Stop Taiga
-  cd ../
-  echo "  [STOP 4/9] Stopping Taiga"
-  cd docker-taiga
-  sudo docker-compose stop
-
-  # Stop Bugzilla
-  cd ../
-  echo "  [STOP 5/9] Stopping Bugzilla"
-  cd docker-bugzilla
-  sudo docker-compose stop
-
-  # Stop Logger
-  cd ../
-  echo "  [STOP 6/9] Stopping Logger"
-  cd docker-logger
-  sudo docker-compose stop
-
-  # Stop Jenkins
-  cd ../
-  echo "  [STOP 7/9] Stopping Jenkins"
-  cd docker-jenkins
-  sudo docker-compose stop
-
-  # Wait for operation completion
-  echo "  [STOP 8/9] Waiting for operations' completion"
-  sleep 10
-
-
-  # Operation completion, print information data
-  echo "  [STOP 9/9] All services are now stopped"
+  echo "All services are now stopped"
 }
 
 
 # Delete all services
 function deleteAll {
   echo "Deleting CAS System..."
-
-  # Delete Gitlab
-  echo "  [DELETE 1/9] Deleting GitLab"
-  cd docker-gitlab
   sudo docker-compose rm
 
-
-  # Delete Mattermost
-  cd ../
-  echo "  [DELETE 2/9] Deleting Mattermost"
-  cd docker-mattermost
-  sudo docker-compose rm
-
-  # Delete Sonarqube
-  cd ../
-  echo "  [DELETE 3/9] Deleting Sonarqube"
-  cd docker-sonar
-  sudo docker-compose rm
-
-  # Delete Taiga
-  cd ../
-  echo "  [DELETE 4/9] Deleting Taiga"
-  cd docker-taiga
-  sudo docker-compose rm
-
-  # Delete Bugzilla
-  cd ../
-  echo "  [DELETE 5/9] Deleting Bugzilla"
-  cd docker-bugzilla
-  sudo docker-compose rm
-
-  # Delete Logger
-  cd ../
-  echo "  [DELETE 6/9] Deleting Logger"
-  cd docker-logger
-  sudo docker-compose rm
-
-  # Delete Jenkins
-  cd ../
-  echo " [DELETE 7/9] Deleting Jenkins"
-  cd docker-jenkins
-  sudo docker-compose rm
-
-  # Wait for operation completion
-  echo "  [DELETE 8/9] Waiting for operations' completion"
-  sleep 10
-
-
-  # Operation completion, print information data
-  echo "  [STOP 9/9] All services has been removed"
+  echo "All services has been removed"
 }
 
 exists()
@@ -315,16 +147,7 @@ while getopts ":hirsdu:" opt; do
       usage
       ;;
     i)
-      shift $(($OPTIND - 1))
-	  site_url=$@
-	  shift $(($OPTIND - 1))
-	  cas_ver=$@
-      if [ -z "$cas_ver" ]
-      then
-        install $site_url $DEFAUTL_CAS_VERSION
-      else
-        install $site_url $cas_ver
-      fi
+      install $DEFAUTL_CAS_VERSION
       ;;
     r)
       startAll
@@ -337,11 +160,6 @@ while getopts ":hirsdu:" opt; do
       # Remove all volumes with persistent data
       sudo docker volume prune
       sudo docker network prune
-      ;;
-    u)
-      cas_ver=$OPTARG
-      deleteAll
-      install $cas_ver
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2

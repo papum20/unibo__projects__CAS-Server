@@ -1,0 +1,247 @@
+version: '3.7'
+
+services:
+#DASHBOARD
+  dashboard:
+    container_name: dashboard
+    tty: true
+    build:
+      context: ./
+      dockerfile: ./docker-dashboard/Dockerfile
+    ports:
+      - 5000:5000
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    restart: unless-stopped
+
+#GITLAB
+  gitlab:
+    container_name: gitlab
+    image: 'gitlab/gitlab-ee:latest'
+    restart: unless-stopped
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost/gitlab'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        letsencrypt['enable'] = false
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+    restart: unless-stopped
+    networks:
+      - default
+
+#JENKINS
+  jenkins:
+    image: jenkins/jenkins:lts
+    privileged: true
+    user: root
+    container_name: jenkins
+    environment:
+      - JENKINS_OPTS="--prefix=/jenkins"
+    volumes:
+      - /etc/default/jenkins:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/docker:/usr/local/bin/docker
+    restart: unless-stopped
+
+#LOGGER
+
+  mongodb:
+    image: mongo:4.0.6
+    container_name: logger_mongodb
+    environment:
+      - MONGO_INITDB_DATABASE=logger
+    volumes:
+      # seeding scripts
+      - logger_entrypoint:/docker-entrypoint-initdb.d
+      # named volumes
+      - logger_data:/docker-logger/data/db
+      - logger_conf:/docker-logger/data/configdb
+    networks:
+      - default
+    restart: always
+
+  logger:
+    container_name: logger
+    # build will get tagged with 'image'
+    build:
+      context: ./docker-logger/logger
+      args:
+          - SECRET_KEY=secret-key
+          - SECURITY_PASSWORD_SALT=a324agfh[z
+          - SECRET_DB_NAME=logger
+    image: cas.logger:1.0
+    container_name: logger
+    networks:
+      - default
+    depends_on:
+      - mongodb
+    restart: always
+
+#MATTERMOST
+  db:
+    container_name: matter-db
+    build: ./docker-mattermost/db
+    read_only: true
+    restart: unless-stopped
+    volumes:
+      - mattermost_db:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - default
+    env_file:
+      - ./configs/mattermost.env
+
+  app:
+    container_name: mattermost
+    build:
+      context: ./docker-mattermost/app
+    restart: unless-stopped
+    volumes:
+      - mattermost_config:/mattermost/config:rw
+      - mattermost_data:/mattermost/data:rw
+      - mattermost_logs:/mattermost/logs:rw
+      - mattermost_plugins:/mattermost/plugins:rw
+      - mattermost_client_plugins:/mattermost/client/plugins:rw
+      - /etc/localtime:/etc/localtime:ro
+      - ./docker-mattermost/config:/config
+      # When you want to use SSO with GitLab, you have to add the cert pki chain of GitLab inside Alpine
+      # to avoid Token request failed: certificate signed by unknown authority (link: https://github.com/mattermost/mattermost-server/issues/13059)
+      # - <path_to_your_gitlab_pki>/pki_chain.pem:/etc/ssl/certs/pki_chain.pem:ro
+    networks:
+      - default
+    env_file:
+      - ./configs/mattermost.env
+
+#SONARQUBE
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube:8-community
+    depends_on:
+      - sonar-db
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - default
+    restart: unless-stopped
+    env_file:
+      - ./configs/sonar.env
+
+  sonar-db:
+    container_name: sonar-db
+    image: postgres:12
+    networks:
+      - default
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    env_file:
+      - ./configs/sonar.env
+
+#TAIGA
+  back:
+    image: dockertaiga/back:6.0.1
+    container_name: taiga-back
+    restart: unless-stopped
+    depends_on:
+      - taiga-db
+      - events
+    networks:
+      - default
+    volumes:
+      - taiga_data:/taiga-media
+      - taiga_conf:/taiga-conf
+    env_file:
+      - ./configs/taiga.env
+
+  front:
+    image: dockertaiga/front:6.0.1
+    container_name: taiga-front
+    restart: unless-stopped
+    networks:
+      - default
+    volumes:
+      - taiga_conf:/taiga-conf
+    env_file:
+      - ./configs/taiga.env
+
+  events:
+    image: dockertaiga/events:6.0.0
+    container_name: taiga-events
+    restart: unless-stopped
+    depends_on:
+      - rabbit
+    networks:
+      - default
+    env_file:
+      - ./configs/taiga.env
+
+  taiga-db:
+    image: postgres:12-alpine
+    container_name: taiga-db
+    restart: unless-stopped
+    networks:
+      - default
+    env_file:
+      - ./configs/taiga.env
+    volumes:
+      - taiga_db:/var/lib/postgresql/data
+
+  rabbit:
+    image: dockertaiga/rabbit
+    container_name: taiga-rabbit
+    restart: unless-stopped
+    networks:
+      - default
+    env_file:
+      - ./configs/taiga.env
+
+#NGINX
+  nginx:
+    container_name: nginx
+    build:
+      context: ./docker-nginx
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/share/nginx/html
+      - /etc/letsencrypt/:/etc/letsencrypt/
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    networks:
+      - default
+
+volumes:
+  # default dir on Ubuntu: /var/lib/docker/volumes
+  logger_data:
+  logger_conf:
+  logger_entrypoint:
+  #sonarqube dirs
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgresql:
+  postgresql_data:
+  #taiga dirs
+  taiga_db:
+  taiga_data:
+  taiga_conf:
+  #GitLab
+  gitlab_data:
+  gitlab_config:
+  gitlab_logs:
+  #mattermost
+  mattermost_db:
+  mattermost_config:
+  mattermost_data:
+  mattermost_logs:
+  mattermost_plugins:
+  mattermost_client_plugins:
