@@ -157,7 +157,7 @@ services:
       - default
     volumes:
       - taiga_data:/taiga-media
-      - taiga_conf:/taiga-conf
+      - taiga_conf_back:/taiga-conf
     env_file:
       - ./configs/taiga.env
 
@@ -168,7 +168,7 @@ services:
     networks:
       - default
     volumes:
-      - taiga_conf:/taiga-conf
+      - taiga_conf_front:/taiga-conf
     env_file:
       - ./configs/taiga.env
 
@@ -233,7 +233,8 @@ volumes:
   #taiga dirs
   taiga_db:
   taiga_data:
-  taiga_conf:
+  taiga_conf_front:
+  taiga_conf_back:
   #GitLab
   gitlab_data:
   gitlab_config:

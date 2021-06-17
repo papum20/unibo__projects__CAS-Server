@@ -1,0 +1,2 @@
+sistemare cas installer:
+  - docker-nginx non sostiutisce i nomi dei certificati

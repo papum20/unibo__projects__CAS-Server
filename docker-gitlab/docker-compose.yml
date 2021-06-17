@@ -1,14 +1,14 @@
 version: "3"
 
 services:
-  gitlab:
-    container_name: gitlab
+  gitlab2021:
+    container_name: gitlab2021
     image: 'gitlab/gitlab-ee:latest'
     restart: unless-stopped
     hostname: 'gitlab.example.com'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'https://www.stefanopropato.it/gitlab'
+        external_url 'http://localhost/gitlab'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
         letsencrypt['enable'] = false
         nginx['listen_port'] = 80

@@ -65,7 +65,9 @@ function install() {
     sed -i "s/external_url .*/external_url \x27https:\/\/$domain\/gitlab\x27/" ./docker-compose.yml;
     sed -i "s/\x22homepage\x22:.*/\x22homepage\x22:\x22https:\/\/$domain\/dashboard\x22,/" ./configs/dashboard.json;
     sed -i "s/_.*/_https.conf \/etc\/nginx\/conf.d\/default.conf/" ./docker-nginx/Dockerfile;
-    sed -i "s/server_name .*/server_name   $domain;/" ./docker-nginx/default_https.conf
+    sed -i "s/server_name .*/server_name   $domain;/" ./docker-nginx/default_https.conf;
+    sed -i "s/ssl_certificate /etc/letsencrypt/live/: .*/ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem;/" ./docker-nginx/default_https.conf;
+    sed -i "s/ssl_certificate_key /etc/letsencrypt/live/: .*/ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem;/" ./docker-nginx/default_https.conf;
   else
     echo "[INFO] CAS-server will install on localhost";
     sed -i "s/TAIGA_HOST=.*/TAIGA_HOST=localhost/" ./configs/taiga.env;

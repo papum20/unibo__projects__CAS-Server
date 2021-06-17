@@ -1,6 +1,6 @@
 {
     "ServiceSettings": {
-        "SiteURL": "https://www.stefanopropato.it/mattermost",
+        "SiteURL": "https://localhost/mattermost",
         "WebsocketURL": "",
         "LicenseFileLocation": "",
         "ListenAddress": ":8000",
@@ -546,5 +546,10 @@
     },
     "CloudSettings": {
         "CWSUrl": "https://customers.mattermost.com"
+    },
+    "FeatureFlags": {
+        "TestFeature": "off",
+        "TestBoolFeature": false,
+        "CloudDelinquentEmailJobsEnabled": false
     }
 }
