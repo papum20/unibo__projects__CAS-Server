@@ -92,19 +92,19 @@ inserire
 
 Testa il renew ogni sabato alle 2:45, si rinnova se scade in meno di 30 giorni
 
-
-#### Check scadenza manuale
-```bash
-openssl x509 -noout -dates -in /etc/letsencrypt/live/aminsep.disi.unibo.it/cert.pem
-```
-#### KNOWN ISSUE
-Se non funziona rinnovo automatico.
+### KNOWN ISSUE
+NON FUNZIONA RINNOVO AUTOMATICO.
 ```bash
 $ sudo docker stop nginx
 $ sudo certbot renew
 $ sudo lsof -i:80
 $ kill -9 [PIDS of lsof]
 $ sudo docker start nginx
+```
+
+#### Check scadenza manuale
+```bash
+openssl x509 -noout -dates -in /etc/letsencrypt/live/aminsep.disi.unibo.it/cert.pem
 ```
 
 ### Gestione Spazio
