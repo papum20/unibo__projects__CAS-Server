@@ -51,6 +51,7 @@ RUN \
 
 # Add files.
 ADD config_proudction.ini ./logger
+# modified requirements for compatibility issue https://stackoverflow.com/questions/51496550/runtime-warning-greenlet-greenlet-size-changed
 ADD requirements.txt ./logger
 ADD run.sh ./logger
 

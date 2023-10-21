@@ -14,9 +14,10 @@ RUN apk add --no-cache \
       py-pip \
       py-cryptography \
       pv \
-      libressl-dev \
-    && pip install --upgrade pip \
-    && pip --no-cache-dir install -c pip-constraints.txt 'wal-e<1.0.0' envdir \
+      libressl-dev
+RUN pip install pyyaml==5.3.1
+RUN pip install --upgrade pip pip setuptools
+RUN pip --no-cache-dir install -c pip-constraints.txt 'wal-e<1.0.0' envdir \
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
 # Add wale script

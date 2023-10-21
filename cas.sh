@@ -33,6 +33,18 @@ function usage (){
 function install() {
   echo "Starting CAS System Installation v. $1"
   # Checking for requirements
+  echo "  [INSTALL 0/7] Clean previous dockers and packages"
+  echo "  \"apt clean\""
+  echo "  \"docker container prune -f\""
+  echo "  \"docker image prune -f\""
+  read -r -p "  Want to execute the above commands first? [y/N] " response
+  if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+  then
+    apt clean
+    docker container prune -f
+    docker image prune -f
+  fi
+
   echo "  [INSTALL 1/7] Checking requirements.."
   if exists docker; then
     echo "    DOCKER .............................. OK";

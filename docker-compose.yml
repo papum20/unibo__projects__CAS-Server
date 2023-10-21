@@ -5,20 +5,30 @@ services:
   dashboard:
     container_name: dashboard
     tty: true
+    restart: unless-stopped
     build:
       context: ./
       dockerfile: ./docker-dashboard/Dockerfile
-    ports:
-      - 5000:5000
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1536M
     environment:
       - CHOKIDAR_USEPOLLING=true
-    restart: unless-stopped
+    ports:
+      - 5000:3000
 
 #GITLAB
   gitlab:
     container_name: gitlab
     image: 'gitlab/gitlab-ee:latest'
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost/gitlab'
@@ -26,44 +36,53 @@ services:
         letsencrypt['enable'] = false
         nginx['listen_port'] = 80
         nginx['listen_https'] = false
+    networks:
+      - default
     volumes:
       - gitlab_config:/etc/gitlab
       - gitlab_logs:/var/log/gitlab
       - gitlab_data:/var/opt/gitlab
-    restart: unless-stopped
-    networks:
-      - default
 
 #JENKINS
   jenkins:
     image: jenkins/jenkins:lts
     privileged: true
+    restart: unless-stopped
     user: root
     container_name: jenkins
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     environment:
       - JENKINS_OPTS="--prefix=/jenkins"
     volumes:
       - /etc/default/jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/local/bin/docker:/usr/local/bin/docker
-    restart: unless-stopped
 
 #LOGGER
 
   mongodb:
     image: mongo:4.0.6
     container_name: logger_mongodb
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     environment:
       - MONGO_INITDB_DATABASE=logger
+    networks:
+      - default
     volumes:
       # seeding scripts
       - logger_entrypoint:/docker-entrypoint-initdb.d
       # named volumes
       - logger_data:/docker-logger/data/db
       - logger_conf:/docker-logger/data/configdb
-    networks:
-      - default
-    restart: always
 
   logger:
     container_name: logger
@@ -75,11 +94,15 @@ services:
           - SECURITY_PASSWORD_SALT=a324agfh[z
           - SECRET_DB_NAME=logger
     image: cas.logger:1.0
-    container_name: logger
-    networks:
-      - default
     depends_on:
       - mongodb
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - default
     restart: always
 
 #MATTERMOST
@@ -88,19 +111,33 @@ services:
     build: ./docker-mattermost/db
     read_only: true
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    env_file:
+      - ./configs/mattermost.env
+    networks:
+      - default
     volumes:
       - mattermost_db:/var/lib/postgresql/data
       - /etc/localtime:/etc/localtime:ro
-    networks:
-      - default
-    env_file:
-      - ./configs/mattermost.env
 
   app:
     container_name: mattermost
+    restart: unless-stopped
     build:
       context: ./docker-mattermost/app
-    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    env_file:
+      - ./configs/mattermost.env
+    networks:
+      - default
     volumes:
       - mattermost_config:/mattermost/config:rw
       - mattermost_data:/mattermost/data:rw
@@ -112,38 +149,44 @@ services:
       # When you want to use SSO with GitLab, you have to add the cert pki chain of GitLab inside Alpine
       # to avoid Token request failed: certificate signed by unknown authority (link: https://github.com/mattermost/mattermost-server/issues/13059)
       # - <path_to_your_gitlab_pki>/pki_chain.pem:/etc/ssl/certs/pki_chain.pem:ro
-    networks:
-      - default
-    env_file:
-      - ./configs/mattermost.env
 
 #SONARQUBE
   sonarqube:
     container_name: sonarqube
     image: sonarqube:8-community
+    restart: unless-stopped
     depends_on:
       - sonar-db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - default
+    env_file:
+      - ./configs/sonar.env
     volumes:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
-    networks:
-      - default
-    restart: unless-stopped
-    env_file:
-      - ./configs/sonar.env
 
   sonar-db:
     container_name: sonar-db
     image: postgres:12
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    env_file:
+      - ./configs/sonar.env
     networks:
       - default
     volumes:
       - postgresql:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    env_file:
-      - ./configs/sonar.env
 
 #TAIGA
   back:
@@ -153,44 +196,64 @@ services:
     depends_on:
       - taiga-db
       - events
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    env_file:
+      - ./configs/taiga.env
     networks:
       - default
     volumes:
       - taiga_data:/taiga-media
       - taiga_conf_back:/taiga-conf
-    env_file:
-      - ./configs/taiga.env
 
   front:
     image: dockertaiga/front:6.0.1
     container_name: taiga-front
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    env_file:
+      - ./configs/taiga.env
     networks:
       - default
     volumes:
       - taiga_conf_front:/taiga-conf
-    env_file:
-      - ./configs/taiga.env
 
   events:
     image: dockertaiga/events:6.0.0
     container_name: taiga-events
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     depends_on:
       - rabbit
-    networks:
-      - default
     env_file:
       - ./configs/taiga.env
+    networks:
+      - default
 
   taiga-db:
     image: postgres:12-alpine
     container_name: taiga-db
     restart: unless-stopped
-    networks:
-      - default
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     env_file:
       - ./configs/taiga.env
+    networks:
+      - default
     volumes:
       - taiga_db:/var/lib/postgresql/data
 
@@ -198,10 +261,15 @@ services:
     image: dockertaiga/rabbit
     container_name: taiga-rabbit
     restart: unless-stopped
-    networks:
-      - default
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     env_file:
       - ./configs/taiga.env
+    networks:
+      - default
 
 #NGINX
   nginx:
@@ -209,15 +277,20 @@ services:
     build:
       context: ./docker-nginx
       dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - default
+    ports:
+      - "8084:80"
+      - "443:443"
+    restart: always
     volumes:
       - .:/usr/share/nginx/html
       - /etc/letsencrypt/:/etc/letsencrypt/
-    ports:
-      - "80:80"
-      - "443:443"
-    restart: always
-    networks:
-      - default
 
 volumes:
   # default dir on Ubuntu: /var/lib/docker/volumes
