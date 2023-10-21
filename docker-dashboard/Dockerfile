@@ -24,8 +24,12 @@ RUN apt-get update && \
     apt-get install -y gnupg2 git npm \
     # ERROR  Cannot copy server address to clipboard: Couldn't find the `xsel` binary and fallback didn't work. On Debian/Ubuntu you can install xsel with: sudo apt install xsel.
     xsel \
-    # debug
+    # debug (install ss/netstat)
     net-tools
+    # debug (install vim)
+#RUN apt-get install apt-file -y && \
+#    apt-file update && \
+#    apt-get install vim
     # yarn, n to update node
 RUN npm install --global n && \
     n 16
