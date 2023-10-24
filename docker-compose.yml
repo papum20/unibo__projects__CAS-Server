@@ -12,8 +12,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 1536M
+          cpus: '1.5'
+          memory: 4096M
     environment:
       - CHOKIDAR_USEPOLLING=true
     ports:
@@ -27,8 +27,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '2'
+          memory: 5120M
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost/gitlab'
@@ -133,7 +133,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     env_file:
       - ./configs/mattermost.env
     networks:
@@ -160,8 +160,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '1'
+          memory: 2048M
     networks:
       - default
     env_file:
@@ -199,8 +199,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '1'
+          memory: 1024M
     env_file:
       - ./configs/taiga.env
     networks:
@@ -217,7 +217,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1536M
     env_file:
       - ./configs/taiga.env
     networks:

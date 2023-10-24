@@ -25,7 +25,7 @@ RUN apt-get update && \
     # ERROR  Cannot copy server address to clipboard: Couldn't find the `xsel` binary and fallback didn't work. On Debian/Ubuntu you can install xsel with: sudo apt install xsel.
     xsel \
     # debug (install ss/netstat)
-    net-tools
+    net-tools tcpdump
     # debug (install vim)
 #RUN apt-get install apt-file -y && \
 #    apt-file update && \

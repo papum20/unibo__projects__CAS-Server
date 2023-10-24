@@ -13,8 +13,8 @@ services:
     volumes:
       - ./data/media:/taiga-media
       - ./conf/back:/taiga-conf
-    ports:
-      - 8001:80
+    #ports:
+    #  - 8001:80
     env_file:
       - variables.env
 
@@ -28,8 +28,8 @@ services:
       - ./conf/front:/taiga-conf
     env_file:
       - variables.env
-    ports:
-      - 9000:80
+    #ports:
+    #  - 9001:80
     restart: always
 
   events:
@@ -42,8 +42,8 @@ services:
       - default
     env_file:
       - variables.env
-    ports:
-      - 8888:8888
+    #ports:
+    #  - 8888:8888
 
   db:
     image: postgres:12-alpine
