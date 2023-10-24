@@ -6,9 +6,6 @@ services:
     container_name: dashboard
     tty: true
     restart: unless-stopped
-    build:
-      context: ./
-      dockerfile: ./docker-dashboard/Dockerfile
     deploy:
       resources:
         limits:
@@ -38,6 +35,8 @@ services:
         nginx['listen_https'] = false
     networks:
       - default
+    ports:
+      - '9001:80'
     volumes:
       - gitlab_config:/etc/gitlab
       - gitlab_logs:/var/log/gitlab
@@ -45,18 +44,21 @@ services:
 
 #JENKINS
   jenkins:
+    container_name: jenkins
     image: jenkins/jenkins:lts
     privileged: true
     restart: unless-stopped
     user: root
-    container_name: jenkins
     deploy:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     environment:
       - JENKINS_OPTS="--prefix=/jenkins"
+    ports:
+      -  8080:8080
+      -  50000:50000
     volumes:
       - /etc/default/jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
@@ -72,7 +74,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     environment:
       - MONGO_INITDB_DATABASE=logger
     networks:
@@ -100,7 +102,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     networks:
       - default
     restart: always
@@ -115,7 +117,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     env_file:
       - ./configs/mattermost.env
     networks:
@@ -162,10 +164,12 @@ services:
         limits:
           cpus: '1'
           memory: 2048M
-    networks:
-      - default
     env_file:
       - ./configs/sonar.env
+    networks:
+      - default
+    ports:
+      - 9000:9000
     volumes:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
@@ -179,7 +183,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     env_file:
       - ./configs/sonar.env
     networks:
@@ -233,7 +237,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     depends_on:
       - rabbit
     env_file:
@@ -249,7 +253,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     env_file:
       - ./configs/taiga.env
     networks:
@@ -265,7 +269,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     env_file:
       - ./configs/taiga.env
     networks:
@@ -281,7 +285,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     networks:
       - default
     ports:

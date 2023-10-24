@@ -1,22 +1,11 @@
 version: "3"
 
 services:
-  gitlab2021:
-    container_name: gitlab2021
+  gitlab:
+    container_name: gitlab
     image: 'gitlab/gitlab-ee:latest'
-    restart: unless-stopped
     hostname: 'gitlab.example.com'
-    environment:
-      GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://localhost/gitlab'
-        gitlab_rails['gitlab_shell_ssh_port'] = 2224
-        letsencrypt['enable'] = false
-        nginx['listen_port'] = 80
-        nginx['listen_https'] = false
-    ports:
-      - '9001:80'
     volumes:
       - '$GITLAB_HOME/config:/etc/gitlab'
       - '$GITLAB_HOME/logs:/var/log/gitlab'
       - '$GITLAB_HOME/data:/var/opt/gitlab'
-    restart: unless-stopped
