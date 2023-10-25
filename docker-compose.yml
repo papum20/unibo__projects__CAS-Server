@@ -52,6 +52,8 @@ services:
       dockerfile: ./docker-dashboard/Dockerfile
     environment:
       - CHOKIDAR_USEPOLLING=true
+    networks:
+      - default
     ports:
       - 5000:3000
     volumes:
@@ -93,6 +95,8 @@ services:
     user: root
     environment:
       - JENKINS_OPTS="--prefix=/jenkins"
+    networks:
+      - default
     ports:
       -  9005:8080
       -  50000:50000
@@ -131,6 +135,8 @@ services:
           - SECRET_DB_NAME=logger
     depends_on:
       - mongodb
+    networks:
+      - default
     ports:
       - 8120:8120
 
@@ -146,10 +152,12 @@ services:
     tmpfs:
       - /tmp
       - /var/run/postgresql
-    volumes:
-      - ${MM_POSTGRES_DATA_PATH}:/var/lib/postgresql/data
     env_file:
       - ./env/mattermost.env
+    networks:
+      - mattermost
+    volumes:
+      - ${MM_POSTGRES_DATA_PATH}:/var/lib/postgresql/data
 
   mattermost:
     container_name: mattermost
@@ -165,6 +173,8 @@ services:
       - /tmp
     env_file:
       - ./env/mattermost.env
+    networks:
+      - mattermost
     ports:
       # ports from docker-compose.without-nginx.yml
       - ${MM_APP_PORT}:8065
@@ -348,6 +358,9 @@ services:
       dockerfile: Dockerfile
     networks:
       - default
+      - gitlab
+      - mattermost
+      - taiga
     ports:
       - "80:80"
       - "443:443"
@@ -385,6 +398,9 @@ volumes:
   mattermost_client_plugins:
 
 networks:
-  taiga:
   gitlab:
     name: gitlab-network
+  mattermost:
+    name: mattermost-network
+  taiga:
+    name: taiga-network
