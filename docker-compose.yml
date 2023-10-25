@@ -1,32 +1,32 @@
 version: '3.7'
 
 x-environment:
-  &default-back-environment
+  &taiga-default-back-environment
   # These environment variables will be used by taiga-back and taiga-async.
   # Database settings
-  POSTGRES_DB: "taiga"
-  POSTGRES_USER: "${POSTGRES_USER}"
-  POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+  POSTGRES_DB: "${TAIGA_POSTGRES_DB}"
+  POSTGRES_USER: "${TAIGA_POSTGRES_USER}"
+  POSTGRES_PASSWORD: "${TAIGA_POSTGRES_PASSWORD}"
   POSTGRES_HOST: "taiga-db"
   # Taiga settings
-  TAIGA_SECRET_KEY: "${SECRET_KEY}"
-  TAIGA_SITES_SCHEME: "${TAIGA_SCHEME}"
-  TAIGA_SITES_DOMAIN: "${TAIGA_DOMAIN}"
-  TAIGA_SUBPATH: "${SUBPATH}"
+  SECRET_KEY: "${TAIGA_SECRET_KEY}"
+  SITES_SCHEME: "${TAIGA_SCHEME}"
+  SITES_DOMAIN: "${TAIGA_DOMAIN}"
+  SUBPATH: "${TAIGA_SUBPATH}"
   # Email settings.
-  EMAIL_BACKEND: "django.core.mail.backends.${EMAIL_BACKEND}.EmailBackend"
-  DEFAULT_FROM_EMAIL: "${EMAIL_DEFAULT_FROM}"
-  EMAIL_USE_TLS: "${EMAIL_USE_TLS}"
-  EMAIL_USE_SSL: "${EMAIL_USE_SSL}"
-  EMAIL_HOST: "${EMAIL_HOST}"
-  EMAIL_PORT: "${EMAIL_PORT}"
-  EMAIL_HOST_USER: "${EMAIL_HOST_USER}"
-  EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
+  EMAIL_BACKEND: "django.core.mail.backends.${TAIGA_EMAIL_BACKEND}.EmailBackend"
+  DEFAULT_FROM_EMAIL: "${TAIGA_EMAIL_DEFAULT_FROM}"
+  EMAIL_USE_TLS: "${TAIGA_EMAIL_USE_TLS}"
+  EMAIL_USE_SSL: "${TAIGA_EMAIL_USE_SSL}"
+  EMAIL_HOST: "${TAIGA_EMAIL_HOST}"
+  EMAIL_PORT: "${TAIGA_EMAIL_PORT}"
+  EMAIL_HOST_USER: "${TAIGA_EMAIL_HOST_USER}"
+  EMAIL_HOST_PASSWORD: "${TAIGA_EMAIL_HOST_PASSWORD}"
   # Rabbitmq settings
-  RABBITMQ_USER: "${RABBITMQ_USER}"
-  RABBITMQ_PASS: "${RABBITMQ_PASS}"
+  RABBITMQ_USER: "${TAIGA_RABBITMQ_USER}"
+  RABBITMQ_PASS: "${TAIGA_RABBITMQ_PASS}"
   # Telemetry settings
-  ENABLE_TELEMETRY: "${ENABLE_TELEMETRY}"
+  ENABLE_TELEMETRY: "${TAIGA_ENABLE_TELEMETRY}"
   # ...your customizations go here
   PUBLIC_REGISTER_ENABLED: "True"
   ## to enable http
@@ -76,7 +76,7 @@ services:
       - gitlab
     ports:
       - '9001:80'
-      - '443:443'
+      - '8443:443'
       - '2224:22'
     volumes:
       - $GITLAB_HOME/config:/etc/gitlab
@@ -137,33 +137,26 @@ services:
 #MATTERMOST
   mattermost-postgres:
     container_name: mattermost-postgres
-    image: postgres:${POSTGRES_IMAGE_TAG}
+    image: postgres:${MM_POSTGRES_IMAGE_TAG}
     pids_limit: 100
     read_only: true
-    restart: ${RESTART_POLICY}
+    restart: ${MM_RESTART_POLICY}
     security_opt:
       - no-new-privileges:true
     tmpfs:
       - /tmp
       - /var/run/postgresql
-    env_file:
-      - ./configs/mattermost.env
     volumes:
-      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
-    environment:
-      # timezone inside container
-      - TZ
-      # necessary Postgres options/variables
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
+      - ${MM_POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    env_file:
+      - ./env/mattermost.env
 
   mattermost:
     container_name: mattermost
     depends_on:
       - mattermost-postgres
     image: mattermost/${MATTERMOST_IMAGE}:${MATTERMOST_IMAGE_TAG}
-    restart: ${RESTART_POLICY}
+    restart: ${MM_RESTART_POLICY}
     pids_limit: 200
     read_only: ${MATTERMOST_CONTAINER_READONLY}
     security_opt:
@@ -171,22 +164,12 @@ services:
     tmpfs:
       - /tmp
     env_file:
-      - ./configs/mattermost.env
-    environment:
-      # timezone inside container
-      - TZ
-      # necessary Mattermost options/variables (see env.example)
-      - MM_SQLSETTINGS_DRIVERNAME
-      - MM_SQLSETTINGS_DATASOURCE
-      # necessary for bleve
-      - MM_BLEVESETTINGS_INDEXDIR
-      # additional settings
-      - MM_SERVICESETTINGS_SITEURL
+      - ./env/mattermost.env
     ports:
       # ports from docker-compose.without-nginx.yml
-      - ${APP_PORT}:8065
-      - ${CALLS_PORT}:${CALLS_PORT}/udp
-      - ${CALLS_PORT}:${CALLS_PORT}/tcp
+      - ${MM_APP_PORT}:8065
+      - ${MM_CALLS_PORT}:${MM_CALLS_PORT}/udp
+      - ${MM_CALLS_PORT}:${MM_CALLS_PORT}/tcp
     volumes:
       - ${MATTERMOST_CONFIG_PATH}:/mattermost/config:rw
       - ${MATTERMOST_DATA_PATH}:/mattermost/data:rw
@@ -234,12 +217,10 @@ services:
     image: postgres:12.3
     container_name: taiga-db
     restart: unless-stopped
-    env_file:
-      - ./env/taiga.env
     environment:
-      POSTGRES_DB: "taiga"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${TAIGA_POSTGRES_DB}"
+      POSTGRES_USER: "${TAIGA_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${TAIGA_POSTGRES_PASSWORD}"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 2s
@@ -254,9 +235,7 @@ services:
   taiga-back:
     image: taigaio/taiga-back:latest
     container_name: taiga-back
-    env_file:
-      - ./env/taiga.env
-    environment: *default-back-environment
+    environment: *taiga-default-back-environment
     volumes: *default-back-volumes
     networks:
       - taiga
@@ -271,9 +250,7 @@ services:
   taiga-async:
     image: taigaio/taiga-back:latest
     entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
-    env_file:
-      - ./env/taiga.env
-    environment: *default-back-environment
+    environment: *taiga-default-back-environment
     volumes: *default-back-volumes
     networks:
       - taiga
@@ -287,13 +264,11 @@ services:
 
   taiga-async-rabbitmq:
     image: rabbitmq:3.8-management-alpine
-    env_file:
-      - ./env/taiga.env
     environment:
-      RABBITMQ_ERLANG_COOKIE: "${RABBITMQ_ERLANG_COOKIE}"
-      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
-      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
-      RABBITMQ_DEFAULT_VHOST: "${RABBITMQ_VHOST}"
+      RABBITMQ_ERLANG_COOKIE: "${TAIGA_RABBITMQ_ERLANG_COOKIE}"
+      RABBITMQ_DEFAULT_USER: "${TAIGA_RABBITMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${TAIGA_RABBITMQ_PASS}"
+      RABBITMQ_DEFAULT_VHOST: "${TAIGA_RABBITMQ_VHOST}"
     hostname: "taiga-async-rabbitmq"
     volumes:
       - taiga-async-rabbitmq-data:/var/lib/rabbitmq
@@ -304,12 +279,10 @@ services:
     image: taigaio/taiga-front:latest
     container_name: taiga-front
     restart: unless-stopped
-    env_file:
-      - ./env/taiga.env
     environment:
-      TAIGA_URL: "${TAIGA_SCHEME}://${TAIGA_DOMAIN}"
-      TAIGA_WEBSOCKETS_URL: "${WEBSOCKETS_SCHEME}://${TAIGA_DOMAIN}"
-      TAIGA_SUBPATH: "${SUBPATH}"
+      URL: "${TAIGA_SCHEME}://${TAIGA_DOMAIN}"
+      WEBSOCKETS_URL: "${TAIGA_WEBSOCKETS_SCHEME}://${TAIGA_DOMAIN}"
+      SUBPATH: "${TAIGA_SUBPATH}"
       # ...your customizations go here
       PUBLIC_REGISTER_ENABLED: "true"
     networks:
@@ -321,12 +294,10 @@ services:
     image: taigaio/taiga-events:latest
     container_name: taiga-events
     restart: unless-stopped
-    env_file:
-      - ./env/taiga.env
     environment:
-      RABBITMQ_USER: "${RABBITMQ_USER}"
-      RABBITMQ_PASS: "${RABBITMQ_PASS}"
-      TAIGA_SECRET_KEY: "${SECRET_KEY}"
+      RABBITMQ_USER: "${TAIGA_RABBITMQ_USER}"
+      RABBITMQ_PASS: "${TAIGA_RABBITMQ_PASS}"
+      SECRET_KEY: "${TAIGA_SECRET_KEY}"
     networks:
       - taiga
     depends_on:
@@ -337,13 +308,11 @@ services:
     image: rabbitmq:3.8-management-alpine
     container_name: taiga-rabbit
     restart: unless-stopped
-    env_file:
-      - ./env/taiga.env
     environment:
-      RABBITMQ_ERLANG_COOKIE: "${RABBITMQ_ERLANG_COOKIE}"
-      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
-      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
-      RABBITMQ_DEFAULT_VHOST: "${RABBITMQ_VHOST}"
+      RABBITMQ_ERLANG_COOKIE: "${TAIGA_RABBITMQ_ERLANG_COOKIE}"
+      RABBITMQ_DEFAULT_USER: "${TAIGA_RABBITMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${TAIGA_RABBITMQ_PASS}"
+      RABBITMQ_DEFAULT_VHOST: "${TAIGA_RABBITMQ_VHOST}"
     hostname: "taiga-events-rabbitmq"
     volumes:
       - taiga-events-rabbitmq-data:/var/lib/rabbitmq
@@ -352,11 +321,9 @@ services:
 
   taiga-protected:
     image: taigaio/taiga-protected:latest
-    env_file:
-      - ./env/taiga.env
     environment:
-      MAX_AGE: "${ATTACHMENTS_MAX_AGE}"
-      SECRET_KEY: "${SECRET_KEY}"
+      MAX_AGE: "${TAIGA_ATTACHMENTS_MAX_AGE}"
+      SECRET_KEY: "${TAIGA_SECRET_KEY}"
     networks:
       - taiga
 
@@ -366,8 +333,6 @@ services:
       - taiga-front
       - taiga-back
       - taiga-events
-    env_file:
-      - ./env/taiga.env
     networks:
       - taiga
     volumes:
