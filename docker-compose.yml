@@ -1,16 +1,52 @@
 version: '3.7'
 
+x-environment:
+  &default-back-environment
+  # These environment variables will be used by taiga-back and taiga-async.
+  # Database settings
+  POSTGRES_DB: "taiga"
+  POSTGRES_USER: "${POSTGRES_USER}"
+  POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+  POSTGRES_HOST: "taiga-db"
+  # Taiga settings
+  TAIGA_SECRET_KEY: "${SECRET_KEY}"
+  TAIGA_SITES_SCHEME: "${TAIGA_SCHEME}"
+  TAIGA_SITES_DOMAIN: "${TAIGA_DOMAIN}"
+  TAIGA_SUBPATH: "${SUBPATH}"
+  # Email settings.
+  EMAIL_BACKEND: "django.core.mail.backends.${EMAIL_BACKEND}.EmailBackend"
+  DEFAULT_FROM_EMAIL: "${EMAIL_DEFAULT_FROM}"
+  EMAIL_USE_TLS: "${EMAIL_USE_TLS}"
+  EMAIL_USE_SSL: "${EMAIL_USE_SSL}"
+  EMAIL_HOST: "${EMAIL_HOST}"
+  EMAIL_PORT: "${EMAIL_PORT}"
+  EMAIL_HOST_USER: "${EMAIL_HOST_USER}"
+  EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
+  # Rabbitmq settings
+  RABBITMQ_USER: "${RABBITMQ_USER}"
+  RABBITMQ_PASS: "${RABBITMQ_PASS}"
+  # Telemetry settings
+  ENABLE_TELEMETRY: "${ENABLE_TELEMETRY}"
+  # ...your customizations go here
+  PUBLIC_REGISTER_ENABLED: "True"
+  ## to enable http
+  SESSION_COOKIE_SECURE: "False"
+  CSRF_COOKIE_SECURE: "False"
+
+x-volumes:
+  &default-back-volumes
+  # These volumens will be used by taiga-back and taiga-async.
+  - taiga-static-data:/taiga-back/static
+  - taiga-media-data:/taiga-back/media
+  # - ./config.py:/taiga-back/settings/config.py
+
+
 services:
 #DASHBOARD
   dashboard:
     container_name: dashboard
     tty: true
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '1.5'
-          memory: 4096M
     environment:
       - CHOKIDAR_USEPOLLING=true
     ports:
@@ -19,28 +55,29 @@ services:
 #GITLAB
   gitlab:
     container_name: gitlab
+    hostname: 'gitlab.example.com'
     image: 'gitlab/gitlab-ee:latest'
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 5120M
+    #restart: always #video
     environment:
+      #external_url 'http://localhost/gitlab' #old
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://localhost/gitlab'
+        external_url 'http://35.199.160.189'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
         letsencrypt['enable'] = false
         nginx['listen_port'] = 80
         nginx['listen_https'] = false
     networks:
-      - default
+      - gitlab
     ports:
       - '9001:80'
+      - '443:443'
+      - '2224:22'
     volumes:
-      - gitlab_config:/etc/gitlab
-      - gitlab_logs:/var/log/gitlab
-      - gitlab_data:/var/opt/gitlab
+      - $GITLAB_HOME/config:/etc/gitlab
+      - $GITLAB_HOME/logs:/var/log/gitlab
+      - $GITLAB_HOME/data:/var/opt/gitlab
+    shm_size: '256m'
 
 #JENKINS
   jenkins:
@@ -49,15 +86,10 @@ services:
     privileged: true
     restart: unless-stopped
     user: root
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
     environment:
       - JENKINS_OPTS="--prefix=/jenkins"
     ports:
-      -  8080:8080
+      -  9005:8080
       -  50000:50000
     volumes:
       - /etc/default/jenkins:/var/jenkins_home
@@ -70,11 +102,6 @@ services:
     image: mongo:4.0.6
     container_name: logger_mongodb
     restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
     environment:
       - MONGO_INITDB_DATABASE=logger
     networks:
@@ -98,13 +125,10 @@ services:
     image: cas.logger:1.0
     depends_on:
       - mongodb
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
     networks:
       - default
+    ports:
+      - 8120:8120
     restart: always
 
 #MATTERMOST
@@ -113,11 +137,6 @@ services:
     build: ./docker-mattermost/db
     read_only: true
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
     env_file:
       - ./configs/mattermost.env
     networks:
@@ -131,15 +150,12 @@ services:
     restart: unless-stopped
     build:
       context: ./docker-mattermost/app
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
     env_file:
       - ./configs/mattermost.env
     networks:
       - default
+    ports:
+      - "9013:8000"
     volumes:
       - mattermost_config:/mattermost/config:rw
       - mattermost_data:/mattermost/data:rw
@@ -159,11 +175,6 @@ services:
     restart: unless-stopped
     depends_on:
       - sonar-db
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2048M
     env_file:
       - ./configs/sonar.env
     networks:
@@ -179,11 +190,6 @@ services:
     container_name: sonar-db
     image: postgres:12
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
     env_file:
       - ./configs/sonar.env
     networks:
@@ -193,87 +199,134 @@ services:
       - postgresql_data:/var/lib/postgresql/data
 
 #TAIGA
-  back:
-    image: dockertaiga/back:6.0.1
-    container_name: taiga-back
-    restart: unless-stopped
-    depends_on:
-      - taiga-db
-      - events
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1024M
-    env_file:
-      - ./configs/taiga.env
-    networks:
-      - default
-    volumes:
-      - taiga_data:/taiga-media
-      - taiga_conf_back:/taiga-conf
-
-  front:
-    image: dockertaiga/front:6.0.1
-    container_name: taiga-front
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1536M
-    env_file:
-      - ./configs/taiga.env
-    networks:
-      - default
-    volumes:
-      - taiga_conf_front:/taiga-conf
-
-  events:
-    image: dockertaiga/events:6.0.0
-    container_name: taiga-events
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
-    depends_on:
-      - rabbit
-    env_file:
-      - ./configs/taiga.env
-    networks:
-      - default
-
   taiga-db:
-    image: postgres:12-alpine
+    image: postgres:12.3
     container_name: taiga-db
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
-    env_file:
-      - ./configs/taiga.env
-    networks:
-      - default
+    environment:
+      POSTGRES_DB: "taiga"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 2s
+      timeout: 15s
+      retries: 5
+      start_period: 3s
     volumes:
-      - taiga_db:/var/lib/postgresql/data
+      - taiga-db-data:/var/lib/postgresql/data
+    networks:
+      - taiga
 
-  rabbit:
-    image: dockertaiga/rabbit
+  taiga-back:
+    image: taigaio/taiga-back:latest
+    container_name: taiga-back
+    environment: *default-back-environment
+    volumes: *default-back-volumes
+    networks:
+      - taiga
+    depends_on:
+      taiga-db:
+        condition: service_healthy
+      taiga-events-rabbitmq:
+        condition: service_started
+      taiga-async-rabbitmq:
+        condition: service_started
+
+  taiga-async:
+    image: taigaio/taiga-back:latest
+    entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
+    environment: *default-back-environment
+    volumes: *default-back-volumes
+    networks:
+      - taiga
+    depends_on:
+      taiga-db:
+        condition: service_healthy
+      taiga-events-rabbitmq:
+        condition: service_started
+      taiga-async-rabbitmq:
+        condition: service_started
+
+  taiga-async-rabbitmq:
+    image: rabbitmq:3.8-management-alpine
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "${RABBITMQ_ERLANG_COOKIE}"
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
+      RABBITMQ_DEFAULT_VHOST: "${RABBITMQ_VHOST}"
+    hostname: "taiga-async-rabbitmq"
+    volumes:
+      - taiga-async-rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - taiga
+
+  taiga-front:
+    image: taigaio/taiga-front:latest
+    container_name: taiga-front
+    restart: unless-stopped
+    environment:
+      TAIGA_URL: "${TAIGA_SCHEME}://${TAIGA_DOMAIN}"
+      TAIGA_WEBSOCKETS_URL: "${WEBSOCKETS_SCHEME}://${TAIGA_DOMAIN}"
+      TAIGA_SUBPATH: "${SUBPATH}"
+      # ...your customizations go here
+      PUBLIC_REGISTER_ENABLED: "true"
+    networks:
+      - taiga
+    # volumes:
+    #   - ./conf.json:/usr/share/nginx/html/conf.json
+
+  taiga-events:
+    image: taigaio/taiga-events:latest
+    container_name: taiga-events
+    restart: unless-stopped
+    environment:
+      RABBITMQ_USER: "${RABBITMQ_USER}"
+      RABBITMQ_PASS: "${RABBITMQ_PASS}"
+      TAIGA_SECRET_KEY: "${SECRET_KEY}"
+    networks:
+      - taiga
+    depends_on:
+      taiga-events-rabbitmq:
+        condition: service_started
+
+  taiga-events-rabbitmq:
+    image: rabbitmq:3.8-management-alpine
     container_name: taiga-rabbit
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
-    env_file:
-      - ./configs/taiga.env
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "${RABBITMQ_ERLANG_COOKIE}"
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
+      RABBITMQ_DEFAULT_VHOST: "${RABBITMQ_VHOST}"
+    hostname: "taiga-events-rabbitmq"
+    volumes:
+      - taiga-events-rabbitmq-data:/var/lib/rabbitmq
     networks:
-      - default
+      - taiga
+
+  taiga-protected:
+    image: taigaio/taiga-protected:latest
+    environment:
+      MAX_AGE: "${ATTACHMENTS_MAX_AGE}"
+      SECRET_KEY: "${SECRET_KEY}"
+    networks:
+      - taiga
+
+  taiga-gateway:
+    image: nginx:1.19-alpine
+    ports:
+      - "80:80" #9000:80
+    volumes:
+      - ./configs/taiga.conf:/etc/nginx/conf.d/default.conf
+      - taiga-static-data:/taiga/static
+      - taiga-media-data:/taiga/media
+    networks:
+      - taiga
+    depends_on:
+      - taiga-front
+      - taiga-back
+      - taiga-events
 
 #NGINX
   nginx:
@@ -281,19 +334,13 @@ services:
     build:
       context: ./docker-nginx
       dockerfile: Dockerfile
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1024M
     networks:
       - default
     ports:
-      - "8084:80"
+      - "8998:80"
       - "443:443"
     restart: always
     volumes:
-      - .:/usr/share/nginx/html
       - /etc/letsencrypt/:/etc/letsencrypt/
 
 volumes:
@@ -308,10 +355,11 @@ volumes:
   postgresql:
   postgresql_data:
   #taiga dirs
-  taiga_db:
-  taiga_data:
-  taiga_conf_front:
-  taiga_conf_back:
+  taiga-static-data:
+  taiga-media-data:
+  taiga-db-data:
+  taiga-async-rabbitmq-data:
+  taiga-events-rabbitmq-data:
   #GitLab
   gitlab_data:
   gitlab_config:
@@ -323,3 +371,8 @@ volumes:
   mattermost_logs:
   mattermost_plugins:
   mattermost_client_plugins:
+
+networks:
+  taiga:
+  gitlab:
+    name: gitlab-network
