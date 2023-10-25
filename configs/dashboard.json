@@ -3,7 +3,7 @@
   "author": "Stefano Propato, Salvatore Perri",
   "licence": "MIT",
   "version": "1.0.0",
-  "homepage": "https://localhost/dashboard",
+  "homepage": "http://35.199.160.189",
   "private": false,
   "scripts": {
     "start": "react-scripts start",
@@ -77,6 +77,7 @@
     "redux-persist": "^6.0.0",
     "redux-persist-sensitive-storage": "^1.0.0",
     "redux-thunk": "^2.3.0",
+    "serve": "^14.2.1",
     "uuid": "^8.3.0",
     "yup": "^0.29.3"
   },

@@ -2,6 +2,10 @@
 
 # volumes
 
+## dashboard
+mkdir dashboard
+export DASHBOARD_HOME=$(pwd)/dashboard
+
 ## gitlab
 mkdir gitlab 
 export GITLAB_HOME=$(pwd)/gitlab

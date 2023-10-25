@@ -54,6 +54,8 @@ services:
       - CHOKIDAR_USEPOLLING=true
     ports:
       - 5000:3000
+    volumes:
+      - $DASHBOARD_HOME:/app
 
 #GITLAB
   gitlab:
@@ -372,8 +374,6 @@ services:
       - ./configs/taiga.conf:/etc/nginx/conf.d/default.conf
       - taiga-static-data:/taiga/static
       - taiga-media-data:/taiga/media
-    ports:
-      - "80:80" #9000:80
 
 #NGINX
   nginx:
@@ -384,7 +384,7 @@ services:
     networks:
       - default
     ports:
-      - "8998:80"
+      - "80:80"
       - "443:443"
     restart: always
     volumes:

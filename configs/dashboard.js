@@ -1,5 +1,5 @@
 export const config = {
-  URL: " http://localhost",
+  URL: " http://35.199.160.189",
 
   PORT_NUMBER: "80",
   SONAR_API:"sonarqube-api",
