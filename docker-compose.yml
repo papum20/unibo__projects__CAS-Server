@@ -76,7 +76,7 @@ services:
       - gitlab
     ports:
       - '9001:80'
-      - '8443:443'
+      - '11443:443'
       - '2224:22'
     volumes:
       - $GITLAB_HOME/config:/etc/gitlab
