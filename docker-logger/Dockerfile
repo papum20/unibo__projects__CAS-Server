@@ -30,7 +30,7 @@ RUN \
   apt-get install -y virtualenv && \
   apt-get install -y  python3-pip && \
   ln -s /usr/bin/pip3 /usr/bin/pip && \
-  git clone https://github.com/elPeron/logger-backend logger && \
+  git clone https://github.com/papum20/unibo__projects__logger-backend.git logger && \
   cd logger && \
   rm requirements.txt && \
   mkdir logs && \

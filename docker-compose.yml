@@ -102,8 +102,8 @@ services:
 #LOGGER
 
   mongodb:
-    image: mongo:4.0.6
     container_name: logger_mongodb
+    image: mongo:4.0.6
     restart: always
     environment:
       - MONGO_INITDB_DATABASE=logger
@@ -111,28 +111,26 @@ services:
       - default
     volumes:
       # seeding scripts
-      - logger_entrypoint:/docker-entrypoint-initdb.d
+      - ${LOGGER_HOME}/entrypoint:/docker-entrypoint-initdb.d
       # named volumes
-      - logger_data:/docker-logger/data/db
-      - logger_conf:/docker-logger/data/configdb
+      - ${LOGGER_HOME}/data:/docker-logger/data/db
+      - ${LOGGER_HOME}/conf:/docker-logger/data/configdb
 
   logger:
     container_name: logger
     image: cas.logger:1.0
-    # build will get tagged with 'image'
+    restart: always
     build:
-      context: ./docker-logger/logger
+      context: ./docker-logger
       args:
+          - REPO_BRANCH=${CAS_LOGGER_RELEASE}
           - SECRET_KEY=secret-key
           - SECURITY_PASSWORD_SALT=a324agfh[z
           - SECRET_DB_NAME=logger
     depends_on:
       - mongodb
-    networks:
-      - default
     ports:
       - 8120:8120
-    restart: always
 
 #MATTERMOST
   mattermost-postgres:
