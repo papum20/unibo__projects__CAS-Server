@@ -45,12 +45,17 @@ services:
 #DASHBOARD
   dashboard:
     container_name: dashboard
-    tty: true
     restart: unless-stopped
+    tty: true
+    build:
+      context: ./docker-dashboard
+      dockerfile: ./docker-dashboard/Dockerfile
     environment:
       - CHOKIDAR_USEPOLLING=true
     ports:
       - 5000:3000
+    volumes:
+      - './docker-dashboard:/app'
 
 #GITLAB
   gitlab:
