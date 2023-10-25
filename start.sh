@@ -1,4 +1,4 @@
-
+#!/bin/bash
 
 # volumes
 
@@ -15,7 +15,9 @@ mkdir logger
 export LOGGER_HOME=$(pwd)/logger
 
 # env
-source env/*.env
+source ./env/mattermost.env
+#source ./env/sonar.env
+source ./env/taiga.env
 
 # start
 docker-compose up -d

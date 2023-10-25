@@ -207,7 +207,7 @@ services:
     depends_on:
       - sonar-db
     env_file:
-      - ./env/sonar.env
+      - ./configs/sonar.env
     networks:
       - default
     ports:
@@ -222,7 +222,7 @@ services:
     image: postgres:12
     restart: unless-stopped
     env_file:
-      - ./env/sonar.env
+      - ./configs/sonar.env
     networks:
       - default
     volumes:
