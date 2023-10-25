@@ -69,9 +69,9 @@ function install() {
     echo -n "Enter domain for TLS certificate: "
     read domain
     sudo certbot certonly --nginx -d $domain || (echo "[ERROR] Insert valid domain."; exit) ;
-    sed -i "s/TAIGA_HOST=.*/TAIGA_HOST=$domain/" ./configs/taiga.env;
-    sed -i "s/TAIGA_PORT=.*/TAIGA_PORT=443/" ./configs/taiga.env;
-    sed -i "s/TAIGA_SCHEME=.*/TAIGA_SCHEME=https/" ./configs/taiga.env;
+    sed -i "s/TAIGA_HOST=.*/TAIGA_HOST=$domain/" ./env/taiga.env;
+    sed -i "s/TAIGA_PORT=.*/TAIGA_PORT=443/" ./env/taiga.env;
+    sed -i "s/TAIGA_SCHEME=.*/TAIGA_SCHEME=https/" ./env/taiga.env;
     sed -i "s/URL:.*/URL: \x22 https:\/\/$domain\x22,/" ./configs/dashboard.js;
     sed -i "s/PORT_NUMBER:.*/PORT_NUMBER: \x22442\x22,/" ./configs/dashboard.js;
     sed -i "s/external_url .*/external_url \x27https:\/\/$domain\/gitlab\x27/" ./docker-compose.yml;
@@ -82,9 +82,9 @@ function install() {
     sed -i "s/ssl_certificate_key /etc/letsencrypt/live/: .*/ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem;/" ./docker-nginx/default_https.conf;
   else
     echo "[INFO] CAS-server will install on localhost";
-    sed -i "s/TAIGA_HOST=.*/TAIGA_HOST=localhost/" ./configs/taiga.env;
-    sed -i "s/TAIGA_PORT=.*/TAIGA_PORT=80/" ./configs/taiga.env;
-    sed -i "s/TAIGA_SCHEME=.*/TAIGA_SCHEME=http/" ./configs/taiga.env;
+    sed -i "s/TAIGA_HOST=.*/TAIGA_HOST=localhost/" ./env/taiga.env;
+    sed -i "s/TAIGA_PORT=.*/TAIGA_PORT=80/" ./env/taiga.env;
+    sed -i "s/TAIGA_SCHEME=.*/TAIGA_SCHEME=http/" ./env/taiga.env;
     sed -i "s/URL:.*/URL: \x22 http:\/\/localhost\x22,/" ./configs/dashboard.js;
     sed -i "s/PORT_NUMBER:.*/PORT_NUMBER: \x2280\x22,/" ./configs/dashboard.js;
     sed -i "s/external_url .*/external_url \x27http:\/\/localhost\/gitlab\x27/" ./docker-compose.yml;

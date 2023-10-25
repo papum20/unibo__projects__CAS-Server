@@ -48,14 +48,12 @@ services:
     restart: unless-stopped
     tty: true
     build:
-      context: ./docker-dashboard
+      context: ./
       dockerfile: ./docker-dashboard/Dockerfile
     environment:
       - CHOKIDAR_USEPOLLING=true
     ports:
       - 5000:3000
-    volumes:
-      - './docker-dashboard:/app'
 
 #GITLAB
   gitlab:
@@ -120,6 +118,7 @@ services:
 
   logger:
     container_name: logger
+    image: cas.logger:1.0
     # build will get tagged with 'image'
     build:
       context: ./docker-logger/logger
@@ -127,7 +126,6 @@ services:
           - SECRET_KEY=secret-key
           - SECURITY_PASSWORD_SALT=a324agfh[z
           - SECRET_DB_NAME=logger
-    image: cas.logger:1.0
     depends_on:
       - mongodb
     networks:
@@ -137,41 +135,69 @@ services:
     restart: always
 
 #MATTERMOST
-  db:
-    container_name: matter-db
-    build: ./docker-mattermost/db
+  mattermost-postgres:
+    container_name: mattermost-postgres
+    image: postgres:${POSTGRES_IMAGE_TAG}
+    pids_limit: 100
     read_only: true
-    restart: unless-stopped
+    restart: ${RESTART_POLICY}
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
     env_file:
       - ./configs/mattermost.env
-    networks:
-      - default
     volumes:
-      - mattermost_db:/var/lib/postgresql/data
-      - /etc/localtime:/etc/localtime:ro
+      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    environment:
+      # timezone inside container
+      - TZ
+      # necessary Postgres options/variables
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
 
-  app:
+  mattermost:
     container_name: mattermost
-    restart: unless-stopped
-    build:
-      context: ./docker-mattermost/app
+    depends_on:
+      - mattermost-postgres
+    image: mattermost/${MATTERMOST_IMAGE}:${MATTERMOST_IMAGE_TAG}
+    restart: ${RESTART_POLICY}
+    pids_limit: 200
+    read_only: ${MATTERMOST_CONTAINER_READONLY}
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
     env_file:
       - ./configs/mattermost.env
-    networks:
-      - default
+    environment:
+      # timezone inside container
+      - TZ
+      # necessary Mattermost options/variables (see env.example)
+      - MM_SQLSETTINGS_DRIVERNAME
+      - MM_SQLSETTINGS_DATASOURCE
+      # necessary for bleve
+      - MM_BLEVESETTINGS_INDEXDIR
+      # additional settings
+      - MM_SERVICESETTINGS_SITEURL
     ports:
-      - "9013:8000"
+      # ports from docker-compose.without-nginx.yml
+      - ${APP_PORT}:8065
+      - ${CALLS_PORT}:${CALLS_PORT}/udp
+      - ${CALLS_PORT}:${CALLS_PORT}/tcp
     volumes:
-      - mattermost_config:/mattermost/config:rw
-      - mattermost_data:/mattermost/data:rw
-      - mattermost_logs:/mattermost/logs:rw
-      - mattermost_plugins:/mattermost/plugins:rw
-      - mattermost_client_plugins:/mattermost/client/plugins:rw
-      - /etc/localtime:/etc/localtime:ro
-      - ./docker-mattermost/config:/config
+      - ${MATTERMOST_CONFIG_PATH}:/mattermost/config:rw
+      - ${MATTERMOST_DATA_PATH}:/mattermost/data:rw
+      - ${MATTERMOST_LOGS_PATH}:/mattermost/logs:rw
+      - ${MATTERMOST_PLUGINS_PATH}:/mattermost/plugins:rw
+      - ${MATTERMOST_CLIENT_PLUGINS_PATH}:/mattermost/client/plugins:rw
+      - ${MATTERMOST_BLEVE_INDEXES_PATH}:/mattermost/bleve-indexes:rw
       # When you want to use SSO with GitLab, you have to add the cert pki chain of GitLab inside Alpine
-      # to avoid Token request failed: certificate signed by unknown authority (link: https://github.com/mattermost/mattermost-server/issues/13059)
-      # - <path_to_your_gitlab_pki>/pki_chain.pem:/etc/ssl/certs/pki_chain.pem:ro
+      # to avoid Token request failed: certificate signed by unknown authority 
+      # (link: https://github.com/mattermost/mattermost-server/issues/13059 and https://github.com/mattermost/docker/issues/34)
+      # - ${GITLAB_PKI_CHAIN_PATH}:/etc/ssl/certs/pki_chain.pem:ro
 
 #SONARQUBE
   sonarqube:
@@ -208,6 +234,8 @@ services:
     image: postgres:12.3
     container_name: taiga-db
     restart: unless-stopped
+    env_file:
+      - ./env/taiga.env
     environment:
       POSTGRES_DB: "taiga"
       POSTGRES_USER: "${POSTGRES_USER}"
@@ -226,6 +254,8 @@ services:
   taiga-back:
     image: taigaio/taiga-back:latest
     container_name: taiga-back
+    env_file:
+      - ./env/taiga.env
     environment: *default-back-environment
     volumes: *default-back-volumes
     networks:
@@ -241,6 +271,8 @@ services:
   taiga-async:
     image: taigaio/taiga-back:latest
     entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
+    env_file:
+      - ./env/taiga.env
     environment: *default-back-environment
     volumes: *default-back-volumes
     networks:
@@ -255,6 +287,8 @@ services:
 
   taiga-async-rabbitmq:
     image: rabbitmq:3.8-management-alpine
+    env_file:
+      - ./env/taiga.env
     environment:
       RABBITMQ_ERLANG_COOKIE: "${RABBITMQ_ERLANG_COOKIE}"
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
@@ -270,6 +304,8 @@ services:
     image: taigaio/taiga-front:latest
     container_name: taiga-front
     restart: unless-stopped
+    env_file:
+      - ./env/taiga.env
     environment:
       TAIGA_URL: "${TAIGA_SCHEME}://${TAIGA_DOMAIN}"
       TAIGA_WEBSOCKETS_URL: "${WEBSOCKETS_SCHEME}://${TAIGA_DOMAIN}"
@@ -285,6 +321,8 @@ services:
     image: taigaio/taiga-events:latest
     container_name: taiga-events
     restart: unless-stopped
+    env_file:
+      - ./env/taiga.env
     environment:
       RABBITMQ_USER: "${RABBITMQ_USER}"
       RABBITMQ_PASS: "${RABBITMQ_PASS}"
@@ -299,6 +337,8 @@ services:
     image: rabbitmq:3.8-management-alpine
     container_name: taiga-rabbit
     restart: unless-stopped
+    env_file:
+      - ./env/taiga.env
     environment:
       RABBITMQ_ERLANG_COOKIE: "${RABBITMQ_ERLANG_COOKIE}"
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
@@ -312,6 +352,8 @@ services:
 
   taiga-protected:
     image: taigaio/taiga-protected:latest
+    env_file:
+      - ./env/taiga.env
     environment:
       MAX_AGE: "${ATTACHMENTS_MAX_AGE}"
       SECRET_KEY: "${SECRET_KEY}"
@@ -320,18 +362,20 @@ services:
 
   taiga-gateway:
     image: nginx:1.19-alpine
-    ports:
-      - "80:80" #9000:80
-    volumes:
-      - ./configs/taiga.conf:/etc/nginx/conf.d/default.conf
-      - taiga-static-data:/taiga/static
-      - taiga-media-data:/taiga/media
-    networks:
-      - taiga
     depends_on:
       - taiga-front
       - taiga-back
       - taiga-events
+    env_file:
+      - ./env/taiga.env
+    networks:
+      - taiga
+    volumes:
+      - ./configs/taiga.conf:/etc/nginx/conf.d/default.conf
+      - taiga-static-data:/taiga/static
+      - taiga-media-data:/taiga/media
+    ports:
+      - "80:80" #9000:80
 
 #NGINX
   nginx:
