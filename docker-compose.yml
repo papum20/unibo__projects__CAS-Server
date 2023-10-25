@@ -175,11 +175,11 @@ services:
       - ./env/mattermost.env
     networks:
       - mattermost
-    ports:
+    #ports:
       # ports from docker-compose.without-nginx.yml
-      - ${MM_APP_PORT}:8065
-      - ${MM_CALLS_PORT}:${MM_CALLS_PORT}/udp
-      - ${MM_CALLS_PORT}:${MM_CALLS_PORT}/tcp
+      #- ${MM_APP_PORT}:8065
+      #- ${MM_CALLS_PORT}:${MM_CALLS_PORT}/udp
+      #- ${MM_CALLS_PORT}:${MM_CALLS_PORT}/tcp
     volumes:
       - ${MATTERMOST_CONFIG_PATH}:/mattermost/config:rw
       - ${MATTERMOST_DATA_PATH}:/mattermost/data:rw
