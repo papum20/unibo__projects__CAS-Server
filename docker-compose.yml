@@ -54,8 +54,6 @@ services:
       - CHOKIDAR_USEPOLLING=true
     networks:
       - default
-    ports:
-      - 5000:3000
     volumes:
       - $DASHBOARD_HOME:/app
 
@@ -69,7 +67,7 @@ services:
     environment:
       #external_url 'http://localhost/gitlab' #old
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://35.199.160.189'
+        external_url 'http://35.199.160.189/gitlab'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
         letsencrypt['enable'] = false
         nginx['listen_port'] = 80
