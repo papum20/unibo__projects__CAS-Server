@@ -19,7 +19,7 @@ mkdir -p ./volumes/app/mattermost/{config,data,logs,plugins,client/plugins,bleve
 sudo chown -R 2000:2000 ./volumes/app/mattermost
 
 # start
-docker-compose up -d \
+docker-compose \
     -f docker-compose.dashboard.yml \
     -f docker-compose.gitlab.yml \
     -f docker-compose.jenkins.yml \
@@ -27,4 +27,5 @@ docker-compose up -d \
     -f docker-compose.mattermost.yml \
     -f docker-compose.sonar.yml \
     -f docker-compose.taiga.yml \
-    -f docker-compose.yml
+    -f docker-compose.yml \
+    up -d
