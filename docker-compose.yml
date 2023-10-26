@@ -219,8 +219,8 @@ services:
     networks:
       - default
     volumes:
-      - postgresql:/var/lib/postgresql
-      - postgresql_data:/var/lib/postgresql/data
+      - sonarqube_postgresql:/var/lib/postgresql
+      - sonarqube_postgresql_data:/var/lib/postgresql/data
 
 #TAIGA
   taiga-db:
@@ -377,8 +377,8 @@ volumes:
   sonarqube_data:
   sonarqube_extensions:
   sonarqube_logs:
-  postgresql:
-  postgresql_data:
+  sonarqube_postgresql:
+  sonarqube_postgresql_data:
   #taiga dirs
   taiga-static-data:
   taiga-media-data:
