@@ -41,6 +41,12 @@ x-volumes:
   # - ./config.py:/taiga-back/settings/config.py
 
 
+
+include:
+
+  #MATTERMOST
+  - ./mattermost/docker-compose.yml
+
 services:
 #DASHBOARD
   dashboard:
@@ -49,7 +55,7 @@ services:
     tty: true
     build:
       context: ./
-      dockerfile: ./docker-dashboard/Dockerfile
+      dockerfile: ./dashboard/Dockerfile
     environment:
       - CHOKIDAR_USEPOLLING=true
     networks:
@@ -117,15 +123,15 @@ services:
       # seeding scripts
       - ${LOGGER_HOME}/entrypoint:/docker-entrypoint-initdb.d
       # named volumes
-      - ${LOGGER_HOME}/data:/docker-logger/data/db
-      - ${LOGGER_HOME}/conf:/docker-logger/data/configdb
+      - ${LOGGER_HOME}/data:/logger/data/db
+      - ${LOGGER_HOME}/conf:/logger/data/configdb
 
   logger:
     container_name: logger
     image: cas.logger:1.0
     restart: always
     build:
-      context: ./docker-logger
+      context: ./logger
       args:
           - REPO_BRANCH=${CAS_LOGGER_RELEASE}
           - SECRET_KEY=secret-key
@@ -137,19 +143,6 @@ services:
       - default
     ports:
       - 8120:8120
-
-#MATTERMOST
-  mattermost-postgres:
-    container_name: mattermost-postgres
-    build: ./mattermost
-    networks:
-      - mattermost
-
-  mattermost:
-    container_name: mattermost
-    build: ./mattermost
-    networks:
-      - mattermost
 
 #SONARQUBE
   sonarqube:
@@ -313,7 +306,7 @@ services:
   nginx:
     container_name: nginx
     build:
-      context: ./docker-nginx
+      context: ./nginx
       dockerfile: Dockerfile
     networks:
       - default
