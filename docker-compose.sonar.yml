@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube:8-community
+    #image: sonarqube
+    depends_on:
+      - sonar-db
+    env_file:
+      - ./env/sonar.env
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - default
+      - sonarqube
+    restart: unless-stopped
+
+  sonar-db:
+    container_name: sonar-db
+    image: postgres:12
+    restart: unless-stopped
+    env_file:
+      - ./env/sonar.env
+    networks:
+      - sonarqube
+    volumes:
+      - sonarqube_postgresql:/var/lib/postgresql
+      - sonarqube_postgresql_data:/var/lib/postgresql/data
+
+
+networks:
+  sonarqube:
+    name: sonarqube-network
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonarqube_postgresql:
+  sonarqube_postgresql_data:

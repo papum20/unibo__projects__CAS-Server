@@ -1,3 +1,5 @@
+version: '3.7'
+
 
 services:
 
@@ -13,7 +15,7 @@ services:
       - /tmp
       - /var/run/postgresql
     env_file:
-      - ./mattermost.env
+      - ./env/mattermost.env
     networks:
       - mattermost
     volumes:
@@ -32,7 +34,7 @@ services:
     tmpfs:
       - /tmp
     env_file:
-      - ./mattermost.env
+      - ./env/mattermost.env
     networks:
       - mattermost
     #ports:
@@ -52,3 +54,15 @@ services:
       # (link: https://github.com/mattermost/mattermost-server/issues/13059 and https://github.com/mattermost/docker/issues/34)
       # - ${GITLAB_PKI_CHAIN_PATH}:/etc/ssl/certs/pki_chain.pem:ro
 
+
+networks:
+  mattermost:
+    name: mattermost-network
+  
+volumes:
+  mattermost_db:
+  mattermost_config:
+  mattermost_data:
+  mattermost_logs:
+  mattermost_plugins:
+  mattermost_client_plugins:

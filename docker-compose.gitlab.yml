@@ -1,0 +1,40 @@
+version: '3.7'
+
+
+services:
+
+  gitlab:
+    container_name: gitlab
+    hostname: 'gitlab.example.com'
+    image: 'gitlab/gitlab-ee:latest'
+    restart: unless-stopped
+    #restart: always #video
+    environment:
+      #external_url 'http://localhost/gitlab' #old
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://35.199.160.189/gitlab'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        letsencrypt['enable'] = false
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+    networks:
+      - gitlab
+    ports:
+      - '9001:80'
+      - '11443:443'
+      - '2224:22'
+    volumes:
+      - $GITLAB_HOME/config:/etc/gitlab
+      - $GITLAB_HOME/logs:/var/log/gitlab
+      - $GITLAB_HOME/data:/var/opt/gitlab
+    shm_size: '256m'
+
+
+networks:
+  gitlab:
+    name: gitlab-network
+
+volumes:
+  gitlab_data:
+  gitlab_config:
+  gitlab_logs:
