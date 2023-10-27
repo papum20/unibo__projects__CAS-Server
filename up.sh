@@ -16,7 +16,7 @@ docker-compose \
     -f docker-compose.jenkins.yml \
     -f docker-compose.logger.yml \
     -f docker-compose.mattermost.yml \
-    -f docker-compose.sonar.yml \
+    -f docker-compose.sonarqube.yml \
     -f docker-compose.taiga.yml \
     -f docker-compose.yml \
     up -d

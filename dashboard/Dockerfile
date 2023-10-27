@@ -14,11 +14,13 @@ RUN apt-get update && \
     # unable to initialize frontend: Dialog (https://github.com/moby/moby/issues/27988)
     apt-get install -y dialog apt-utils && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-    apt-get install -y curl && \
+    apt-get install -y curl \
     # 
-    apt-get install -y gnupg2 git npm \
+    gnupg2 git npm \
     # ERROR  Cannot copy server address to clipboard: Couldn't find the `xsel` binary and fallback didn't work. On Debian/Ubuntu you can install xsel with: sudo apt install xsel.
-    xsel
+    xsel \
+    # for envsubst
+    gettext
 # set node version
 RUN npm install --global n && \
     n 16
@@ -29,10 +31,9 @@ RUN git clone https://github.com/papum20/unibo__projects__CAS-dashboard.git CAS-
 # install app dependencies
 
 WORKDIR /root/CAS-dashboard
-COPY ./dashboard/.env ./.env
 COPY ./dashboard/package.json ./package.json
 COPY ./dashboard/config.js.template ./src/services/config.js.template
-RUN "envsubst < ./src/services/config.js.template > ./src/services/config.js"
+RUN envsubst < ./src/services/config.js.template > ./src/services/config.js
 
 # RUN yarn upgrade"
 

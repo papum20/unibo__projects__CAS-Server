@@ -16,7 +16,4 @@ services:
       - default
     volumes:
       - $DASHBOARD_HOME:/app
-      # config files
-      - ./dashboard/package.json:/root/CAS-dashboard/package.json
-      - ./dashboard/.env:/root/CAS-dashboard/.env
 
