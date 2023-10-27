@@ -39,3 +39,8 @@ services:
 networks:
   logger:
     name: logger-network
+
+volumes:
+  logger_data:
+  logger_conf:
+  logger_entrypoint:

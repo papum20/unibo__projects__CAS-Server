@@ -22,10 +22,3 @@ services:
       #- taiga-static-data:/taiga/static
       #- taiga-media-data:/taiga/media
 
-
-volumes:
-  # default dir on Ubuntu: /var/lib/docker/volumes
-  logger_data:
-  logger_conf:
-  logger_entrypoint:
-
