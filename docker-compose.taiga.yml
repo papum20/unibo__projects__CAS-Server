@@ -163,19 +163,6 @@ services:
       - default
       - taiga
 
-  taiga-gateway:
-    image: nginx:1.19-alpine
-    depends_on:
-      - taiga-front
-      - taiga-back
-      - taiga-events
-    networks:
-      - taiga
-    volumes:
-      - ./configs/taiga.conf:/etc/nginx/conf.d/default.conf
-      - taiga-static-data:/taiga/static
-      - taiga-media-data:/taiga/media
-
 
 networks:
   taiga:

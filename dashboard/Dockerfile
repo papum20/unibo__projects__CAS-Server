@@ -2,7 +2,6 @@
 FROM ubuntu:20.04
 
 ENV PATH /app/node_modules/.bin:$PATH
-ENV TZ=Europe/Rome
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /root
@@ -20,6 +19,7 @@ RUN apt-get update && \
     apt-get install -y gnupg2 git npm \
     # ERROR  Cannot copy server address to clipboard: Couldn't find the `xsel` binary and fallback didn't work. On Debian/Ubuntu you can install xsel with: sudo apt install xsel.
     xsel
+# set node version
 RUN npm install --global n && \
     n 16
 RUN npm install --global yarn
@@ -29,6 +29,8 @@ RUN git clone https://github.com/papum20/unibo__projects__CAS-dashboard.git CAS-
 # install app dependencies
 
 WORKDIR /root/CAS-dashboard
+COPY ./dashboard/package.json ./package.json
+COPY ./dashboard/.env.json ./.env
 
 # RUN yarn upgrade"
 
@@ -39,8 +41,6 @@ WORKDIR /root/CAS-dashboard
 RUN yarn global add serve
 # increased timeout needed for slower systems, because @material-ui/icons is quite large (https://github.com/mui/material-ui/issues/12432)
 RUN yarn --network-timeout 500000
-COPY ./configs/dashboard.json ./package.json
-COPY ./configs/dashboard.js ./src/services/config.js
 RUN yarn build
 # start app
 CMD serve -s build

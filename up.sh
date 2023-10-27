@@ -2,17 +2,8 @@
 
 # volumes
 
-## dashboard
-mkdir dashboard
-export DASHBOARD_HOME=$(pwd)/dashboard
-
-## gitlab
-mkdir gitlab 
-export GITLAB_HOME=$(pwd)/gitlab
-
-## logger
-mkdir logger
-export LOGGER_HOME=$(pwd)/logger
+source .env
+mkdir ${DASHBOARD_HOME} ${GITLAB_HOME} ${LOGGER_HOME}
 
 # mattermost
 mkdir -p ./volumes/app/mattermost/{config,data,logs,plugins,client/plugins,bleve-indexes}
