@@ -4,8 +4,10 @@ version: '3.7'
 services:
 
   nginx-proxy:
-    image: nginx:1.19-alpine
     container_name: nginx-proxy
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
     env_file:
       - ./env/proxy.env
     networks:
@@ -14,8 +16,7 @@ services:
       - "80:80"
       - "443:443"
     restart: always
-    volumes:
-      - ./nginx/:/etc/nginx/
+    #volumes:
       #https?
       #- /etc/letsencrypt/:/etc/letsencrypt/
       # from taiga-gateway

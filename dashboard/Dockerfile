@@ -30,7 +30,7 @@ RUN git clone https://github.com/papum20/unibo__projects__CAS-dashboard.git CAS-
 
 WORKDIR /root/CAS-dashboard
 COPY ./dashboard/package.json ./package.json
-COPY ./dashboard/.env.json ./.env
+COPY ./dashboard/.env ./.env
 
 # RUN yarn upgrade"
 
