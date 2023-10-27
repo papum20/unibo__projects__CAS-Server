@@ -29,8 +29,10 @@ RUN git clone https://github.com/papum20/unibo__projects__CAS-dashboard.git CAS-
 # install app dependencies
 
 WORKDIR /root/CAS-dashboard
-COPY ./dashboard/package.json ./package.json
 COPY ./dashboard/.env ./.env
+COPY ./dashboard/package.json ./package.json
+COPY ./dashboard/config.js.template ./src/services/config.js.template
+RUN "envsubst < ./src/services/config.js.template > ./src/services/config.js"
 
 # RUN yarn upgrade"
 

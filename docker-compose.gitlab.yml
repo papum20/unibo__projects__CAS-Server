@@ -9,6 +9,10 @@ services:
     image: 'gitlab/gitlab-ee:latest'
     restart: unless-stopped
     #restart: always #video
+    deploy:
+      resources:
+        limits:
+          - cpus: '1'
     environment:
       #external_url 'http://localhost/gitlab' #old
       GITLAB_OMNIBUS_CONFIG: |
@@ -18,6 +22,7 @@ services:
         nginx['listen_port'] = ${GITLAB_PORT}
         nginx['listen_https'] = false
     networks:
+      - default
       - gitlab
     volumes:
       - $GITLAB_HOME/config:/etc/gitlab
