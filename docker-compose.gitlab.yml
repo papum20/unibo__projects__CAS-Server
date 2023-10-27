@@ -18,6 +18,7 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://35.199.160.189/gitlab'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        gitlab_rails['gitlab_signup_enabled'] = false
         letsencrypt['enable'] = false
         nginx['listen_port'] = ${GITLAB_PORT}
         nginx['listen_https'] = false

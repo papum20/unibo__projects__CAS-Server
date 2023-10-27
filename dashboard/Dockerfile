@@ -33,7 +33,8 @@ RUN git clone https://github.com/papum20/unibo__projects__CAS-dashboard.git CAS-
 WORKDIR /root/CAS-dashboard
 COPY ./dashboard/package.json ./package.json
 COPY ./dashboard/config.js.template ./src/services/config.js.template
-RUN envsubst < ./src/services/config.js.template > ./src/services/config.js
+COPY ./env/dashboard.env ./.env
+RUN set -a && source .env && envsubst < ./src/services/config.js.template > ./src/services/config.js
 
 # RUN yarn upgrade"
 
