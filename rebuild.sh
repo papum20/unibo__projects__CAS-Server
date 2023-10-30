@@ -1,7 +1,9 @@
 #!/bin/bash
 
 ./down.sh
-docker-compose \
+set -a
+source env/credentials.env
+docker compose \
     -f docker-compose.dashboard.yml \
     -f docker-compose.gitlab.yml \
     -f docker-compose.jenkins.yml \

@@ -125,7 +125,7 @@ server {
         include proxy_params;
     }
 
-    location / {
+    location ^~ / {
         proxy_pass http://taiga-front:${TAIGA_FRONT_PORT}/;
         include proxy_params;
     }

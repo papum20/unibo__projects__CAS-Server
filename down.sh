@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # down
-docker-compose \
+docker compose \
     -f docker-compose.dashboard.yml \
     -f docker-compose.gitlab.yml \
     -f docker-compose.jenkins.yml \
