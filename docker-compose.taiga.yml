@@ -82,6 +82,7 @@ services:
 
   taiga-async:
     image: taigaio/taiga-back:latest
+    container_name: taigaio/taiga-async
     entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
     environment: *taiga-default-back-environment
     depends_on:
@@ -97,6 +98,7 @@ services:
 
   taiga-async-rabbitmq:
     image: rabbitmq:3.8-management-alpine
+    container_name: taiga-async-rabbitmq
     environment:
       RABBITMQ_ERLANG_COOKIE: "${TAIGA_RABBITMQ_ERLANG_COOKIE}"
       RABBITMQ_DEFAULT_USER: "${TAIGA_RABBITMQ_USER}"
@@ -156,6 +158,7 @@ services:
 
   taiga-protected:
     image: taigaio/taiga-protected:latest
+    container_name: taiga-protected
     environment:
       MAX_AGE: "${TAIGA_ATTACHMENTS_MAX_AGE}"
       SECRET_KEY: "${TAIGA_SECRET_KEY}"
@@ -169,7 +172,7 @@ networks:
     name: taiga-network
 
 volumes:
-    #taiga dirs
+  #taiga dirs
   taiga-static-data:
   taiga-media-data:
   taiga-db-data:

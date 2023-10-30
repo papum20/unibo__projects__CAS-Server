@@ -26,9 +26,9 @@ services:
       - default
       - gitlab
     volumes:
-      - $GITLAB_HOME/config:/etc/gitlab
-      - $GITLAB_HOME/logs:/var/log/gitlab
-      - $GITLAB_HOME/data:/var/opt/gitlab
+      - $GITLAB_VOLUME/config:/etc/gitlab
+      - $GITLAB_VOLUME/logs:/var/log/gitlab
+      - $GITLAB_VOLUME/data:/var/opt/gitlab
     shm_size: '256m'
 
 

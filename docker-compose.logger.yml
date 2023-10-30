@@ -13,10 +13,10 @@ services:
       - logger
     volumes:
       # seeding scripts
-      - ${LOGGER_HOME}/entrypoint:/docker-entrypoint-initdb.d
+      - ${LOGGER_VOLUME}/entrypoint:/docker-entrypoint-initdb.d
       # named volumes
-      - ${LOGGER_HOME}/data:/logger/data/db
-      - ${LOGGER_HOME}/conf:/logger/data/configdb
+      - ${LOGGER_VOLUME}/data:/logger/data/db
+      - ${LOGGER_VOLUME}/conf:/logger/data/configdb
 
   logger:
     container_name: logger

@@ -4,7 +4,7 @@
 
 set -a
 source env/credentials.env proxy.env .env
-mkdir ${DASHBOARD_HOME} ${GITLAB_HOME} ${LOGGER_HOME}
+mkdir -p ${DASHBOARD_VOLUME} ${GITLAB_VOLUME} ${LOGGER_VOLUME}
 
 # mattermost
 mkdir -p ./volumes/app/mattermost/{config,data,logs,plugins,client/plugins,bleve-indexes}

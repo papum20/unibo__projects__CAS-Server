@@ -15,5 +15,5 @@ services:
     networks:
       - default
     volumes:
-      - $DASHBOARD_HOME:/app
+      - $DASHBOARD_VOLUME:/app
 
