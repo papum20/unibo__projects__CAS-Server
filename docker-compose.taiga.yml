@@ -82,7 +82,7 @@ services:
 
   taiga-async:
     image: taigaio/taiga-back:latest
-    container_name: taigaio/taiga-async
+    container_name: taiga-async
     entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
     environment: *taiga-default-back-environment
     depends_on:

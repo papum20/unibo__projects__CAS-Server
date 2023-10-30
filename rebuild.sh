@@ -2,7 +2,7 @@
 
 ./down.sh
 set -a
-source proxy.env env/credentials.env
+source env/proxy.env env/credentials.env .env
 docker compose \
     -f docker-compose.dashboard.yml \
     -f docker-compose.gitlab.yml \
