@@ -4,7 +4,6 @@ FROM ubuntu:20.04
 ENV PATH /app/node_modules/.bin:$PATH
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-WORKDIR /root
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update && \
@@ -27,10 +26,8 @@ RUN npm install --global n && \
 RUN npm install --global yarn
 
 RUN git clone https://github.com/papum20/unibo__projects__CAS-dashboard.git CAS-dashboard
+WORKDIR /CAS-dashboard
 
-# install app dependencies
-
-WORKDIR /root/CAS-dashboard
 COPY ./dashboard/package.json ./package.json
 COPY ./dashboard/config.js.template ./src/services/config.js.template
 COPY ./env/dashboard.env ./.env

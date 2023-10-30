@@ -17,10 +17,10 @@ password | admin
 
 ### Gitlab
 
-  Data | value
-  -----|----
-  user | root
-  password | Set at first login
+Admin's username: `root`.  
+Get admin's password (only valid for 24h): `/etc/gitlab/initial_root_password`.  
+set password for admin: `docker exec -it gitlab gitlab-rake "gitlab:password:reset[root]"`.
+other options at https://docs.gitlab.com/omnibus/installation/#set-up-the-initial-password.    
 
 #### Remove Require admin approval fo signups
 AdminArea-> Settings -> General -> Signup restrictions -> UNTICK Require admin approval for new sign-ups -> Save changes
