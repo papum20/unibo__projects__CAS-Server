@@ -3,8 +3,7 @@
 # volumes
 
 set -a
-source .env
-source env/credentials.env
+source .env proxy.env env/credentials.env
 mkdir ${DASHBOARD_HOME} ${GITLAB_HOME} ${LOGGER_HOME}
 
 # mattermost
