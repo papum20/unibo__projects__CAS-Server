@@ -94,12 +94,12 @@ server {
         proxy_send_timeout 7d;
         proxy_read_timeout 7d;
     }
-    location /api {
+    location /api/ {
         proxy_pass http://taiga-back:${TAIGA_BACK_PORT}/api/;
         include proxy_params;
     }
 
-    location /admin {
+    location /admin/ {
         proxy_pass http://taiga-back:${TAIGA_BACK_PORT}/admin/;
         include proxy_params;
     }
@@ -120,7 +120,7 @@ server {
         add_header Content-disposition "attachment";
     }
 
-    location /media {
+    location /media/ {
         proxy_pass http://taiga-protected:${TAIGA_PROTECTED_PORT}/;
         include proxy_params;
     }
