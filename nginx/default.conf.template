@@ -140,6 +140,20 @@ server {
 }
 
 
+server {
+    server_name gitlab.${DOMAIN};
+    listen 80;
+
+    location / {
+        proxy_pass http://gitlab:${GITLAB_PORT};
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        proxy_set_header Host ${DOLLAR}host;
+        proxy_redirect   off;
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+    }
+}
+
+
 ## OLD, for https
 #server {
 #    server_name   localhost;

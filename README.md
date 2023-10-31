@@ -5,7 +5,7 @@ Edit the `.env` files (`.env` and `env/*`); in particular, you need to create fi
 There's a script for creating random credentials in `env/credentials.env`, called `create-credentials.sh`.  
 
 Then use `up.sh`.  
-The given commands `down.sh`, `up.sh` and `rebuild.sh` respectively execute `docker compose` `down`, `up` and `down && up`, after having set up the environment correctly.  
+The given commands `down.sh`, `up.sh`, `rebuild.sh`, `ls.sh` respectively execute `docker compose` `down`, `up`, `down && up`, and `docker container ls` after having set up the environment correctly.  
 
 ## Post-Installation: defaults and fixes
 

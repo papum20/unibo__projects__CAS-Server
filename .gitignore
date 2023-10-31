@@ -1,3 +1,4 @@
 # credentials generated and used as vars
 .env
 env/credentials.env
+env/.credentials
