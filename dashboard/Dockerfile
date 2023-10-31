@@ -28,10 +28,11 @@ RUN npm install --global yarn
 RUN git clone https://github.com/papum20/unibo__projects__CAS-dashboard.git CAS-dashboard
 WORKDIR /CAS-dashboard
 
-COPY ./dashboard/package.json ./package.json
+COPY ./dashboard/package.json.template ./package.json.template
 COPY ./dashboard/config.js.template ./src/services/config.js.template
 COPY ./env/dashboard.env ./.env
-RUN set -a && source .env && envsubst < ./src/services/config.js.template > ./src/services/config.js
+RUN export DOLLAR='$' && set -a && source .env && envsubst < ./package.json.template > ./package.json
+RUN export DOLLAR='$' && set -a && source .env && envsubst < ./src/services/config.js.template > ./src/services/config.js
 
 # RUN yarn upgrade"
 

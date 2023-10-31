@@ -3,11 +3,11 @@
   "author": "Stefano Propato, Salvatore Perri",
   "licence": "MIT",
   "version": "1.0.0",
-  "homepage": "http://35.199.160.189/dashboard",
+  "homepage": "http://${DOMAIN}/dashboard",
   "private": false,
   "scripts": {
     "start": "react-scripts start",
-    "server": "cd ../innometrics-backend &&  . $INNOMETRICS_BACKEND_PATH/innometricsenv/bin/activate && python3 ./api/app.py",
+    "server": "cd ../innometrics-backend &&  . ${DOLLAR}INNOMETRICS_BACKEND_PATH/innometricsenv/bin/activate && python3 ./api/app.py",
     "db": "sudo service mongod start",
     "build": "react-scripts build",
     "test": "react-scripts test",
