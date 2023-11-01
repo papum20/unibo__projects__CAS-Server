@@ -6,8 +6,9 @@ There's a script for creating random credentials in `env/credentials.env`, calle
 
 Then use `up.sh`.  
 The given commands `down.sh`, `up.sh`, `rebuild.sh`, `ls.sh` respectively execute `docker compose` `down`, `up`, `down && up`, and `docker container ls` after having set up the environment correctly.  
+The command `up-first.sh` should be executed at the first `up`, as initializes something before doing `up`.  
 
-## Post-Installation: defaults and fixes
+## Post-Installation: defaults, fixes, maintenance
 
 ### Sonarqube
 
@@ -26,44 +27,14 @@ other options at https://docs.gitlab.com/omnibus/installation/#set-up-the-initia
 #### Remove Require admin approval fo signups
 AdminArea-> Settings -> General -> Signup restrictions -> UNTICK Require admin approval for new sign-ups -> Save changes
 
-## Taiga
+### Taiga
 
 Data | value
 -----|-----
 username | admin
 password | 123123
 
-### Fixes
-
-#### Exec container
-```bash
-$ sudo docker exec -it taiga-front su
-```
-#### Sostituire in conf.json
-! you need to use VI
-```
-    "publicRegisterEnabled": true,
-```
-exit;
-#### Exec container
-```bash
-$ sudo docker exec -it taiga-back su
-```
-
-#### Impostare in /settings/config.py
-! you need to use VI
-```
-    PUBLIC_REGISTER_ENABLED = True
-```
-#### Restart Taiga-Back
-```bash
-$ sudo docker stop taiga-back
-$ sudo docker start taiga-back
-```
-
-## Mattermost
-
-## Jenkins
+### Jenkins
 #### Recuperare password iniziale JENKINS
 ```bash
 $ sudo docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
@@ -71,7 +42,7 @@ $ sudo docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPasswor
 #### Abilitare registrazione utenti
 Manage Jenkins -> Configure Global Security ->  Jenkins’ own user database -> -[x] Allow users to sign up
 
-## Logger-server
+### Logger-server
 - Optional: can update CORS origin
 ```bash
 docker exec -it logger su
@@ -79,7 +50,7 @@ docker exec -it logger su
 [docker] nano api/config.py
 ```
 
-## Nginx
+### Nginx
 
 ####  Automatizzare CertBot
 
@@ -115,3 +86,14 @@ In caso di occupazione completa dello spazio su disco:
   $  sudo lvextend -L +10G /dev/mapper/vg0-var
   $  sudo resize2fs /dev/mapper/vg0-var
 ```
+
+### Backup
+Some tips for doing backups, like for migrating server, moving files etc.  
+1.	after moving bind mounts, you should change permissions and acls
+	*	`sudo chown -R NEW_OWNER:docker CAS-Server`  
+	*	`apt install acl; sudo setfacl -Rm g:docker:rwx volumes`
+2.	if gitlab complains (in `docker logs gitlab`) about wrong permissions for gitaly.pid, delete it (it will recreate it) (https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/6926)
+3.	for updating gitlab's permissions (suggested by gitlab ouput, idk):
+	*	` docker exec -it gitlab update-permissions; docker restart gitlab`
+	*	the docker-compose already does something for permissions (adding `:Z` which i don't know what does) (https://stackoverflow.com/a/31334443/20607105)
+	

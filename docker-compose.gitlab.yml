@@ -23,17 +23,12 @@ services:
         nginx['listen_https'] = false
     networks:
       - default
-      - gitlab
     volumes:
-      - $GITLAB_VOLUME/config:/etc/gitlab
-      - $GITLAB_VOLUME/logs:/var/log/gitlab
-      - $GITLAB_VOLUME/data:/var/opt/gitlab
+      - $GITLAB_VOLUME/config:/etc/gitlab:Z
+      - $GITLAB_VOLUME/logs:/var/log/gitlab:Z
+      - $GITLAB_VOLUME/data:/var/opt/gitlab:Z
     shm_size: '256m'
 
-
-networks:
-  gitlab:
-    name: gitlab-network
 
 volumes:
   gitlab_data:

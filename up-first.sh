@@ -6,6 +6,13 @@ source env/proxy.env
 source env/credentials.env
 source .env
 
+# volumes
+mkdir -p ${DASHBOARD_VOLUME} ${GITLAB_VOLUME} ${LOGGER_VOLUME}
+
+## mattermost
+mkdir -p ./volumes/app/mattermost/{config,data,logs,plugins,client/plugins,bleve-indexes}
+sudo chown -R 2000:2000 ./volumes/app/mattermost
+
 # start
 docker compose \
     -f docker-compose.dashboard.yml \
