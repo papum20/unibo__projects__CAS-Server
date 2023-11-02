@@ -15,7 +15,8 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
     networks:
-      - default
+      - default:
+          ipv4_address: ${DFLT_IP_SONARQUBE}
       - sonarqube
     restart: unless-stopped
 

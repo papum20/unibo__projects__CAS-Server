@@ -76,7 +76,8 @@ services:
       taiga-async-rabbitmq:
         condition: service_started
     networks:
-      - default
+      - default:
+          ipv4_address: ${DFLT_IP_TAIGA_BACK}
       - taiga
     volumes: *default-back-volumes
 
@@ -121,7 +122,8 @@ services:
       # ...your customizations go here
       PUBLIC_REGISTER_ENABLED: "true"
     networks:
-      - default
+      - default:
+          ipv4_address: ${DFLT_IP_TAIGA}
       - taiga
     # volumes:
     #   - ./conf.json:/usr/share/nginx/html/conf.json
@@ -135,7 +137,8 @@ services:
       RABBITMQ_PASS: "${TAIGA_RABBITMQ_PASS}"
       SECRET_KEY: "${TAIGA_SECRET_KEY}"
     networks:
-      - default
+      - default:
+          ipv4_address: ${DFLT_IP_TAIGA_EVENTS}
       - taiga
     depends_on:
       taiga-events-rabbitmq:
@@ -163,7 +166,8 @@ services:
       MAX_AGE: "${TAIGA_ATTACHMENTS_MAX_AGE}"
       SECRET_KEY: "${TAIGA_SECRET_KEY}"
     networks:
-      - default
+      - default:
+          ipv4_address: ${DFLT_IP_TAIGA_PROTECTED}
       - taiga
 
 

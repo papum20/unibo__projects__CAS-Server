@@ -6,7 +6,7 @@ There's a script for creating random credentials in `env/credentials.env`, calle
 
 Then use `up.sh`.  
 The given commands `down.sh`, `up.sh`, `rebuild.sh`, `ls.sh` respectively execute `docker compose` `down`, `up`, `down && up`, and `docker container ls` after having set up the environment correctly.  
-The command `up-first.sh` should be executed at the first `up`, as initializes something before doing `up`.  
+The command `first-up.sh` should be executed at the first `up`, as initializes something before doing `up`.  
 
 ## Post-Installation: defaults, fixes, maintenance
 

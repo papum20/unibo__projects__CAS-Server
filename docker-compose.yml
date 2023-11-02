@@ -11,7 +11,8 @@ services:
     env_file:
       - ./env/proxy.env
     networks:
-      - default
+      default:
+        ipv4_address: {DFLT_IP_GATEWAY}
     ports:
       - "80:80"
       - "443:443"
@@ -23,3 +24,13 @@ services:
       #- taiga-static-data:/taiga/static
       #- taiga-media-data:/taiga/media
 
+
+networks:
+  default:
+    name: cas-network
+    ipam:
+      driver: default
+      config:
+      - subnet: ${DFLT_SUBNET}
+        ip_range: ${DFLT_IPRANGE}
+        gateway: ${DFLT_IP_GATEWAY}

@@ -12,7 +12,8 @@ services:
     environment:
       - JENKINS_OPTS="--prefix=/jenkins"
     networks:
-      - default
+      - default:
+          ipv4_address: ${DFLT_IP_JENKINS}
     volumes:
       - /etc/default/jenkins:/var/jenkins_home
       #- ./jenkins:/var/jenkins_home
