@@ -22,7 +22,7 @@ services:
         nginx['listen_port'] = ${GITLAB_PORT}
         nginx['listen_https'] = false
     networks:
-      default:
+      cas:
         ipv4_address: ${DFLT_IP_GITLAB}
     volumes:
       - $GITLAB_VOLUME/config:/etc/gitlab:Z
@@ -32,9 +32,9 @@ services:
 
 
 networks:
-  default:
+  cas:
     external: true
-    
+
 volumes:
   gitlab_data:
   gitlab_config:

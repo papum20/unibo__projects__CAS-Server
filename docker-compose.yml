@@ -11,7 +11,7 @@ services:
     env_file:
       - ./env/proxy.env
     networks:
-      default:
+      cas:
         ipv4_address: ${DFLT_IP_GATEWAY}
     ports:
       - "80:80"
@@ -26,7 +26,7 @@ services:
 
 
 networks:
-  default:
+  cas:
     name: cas-network
     ipam:
       driver: default

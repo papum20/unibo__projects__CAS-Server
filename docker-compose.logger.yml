@@ -32,13 +32,13 @@ services:
     depends_on:
       - mongodb
     networks:
-      default:
+      cas:
           ipv4_address: ${DFLT_IP_LOGGER}
       logger:
 
 
 networks:
-  default:
+  cas:
     external: true
   logger:
     name: logger-network

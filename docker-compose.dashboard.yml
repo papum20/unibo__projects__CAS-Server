@@ -13,11 +13,11 @@ services:
     env_file:
       - env/dashboard.env
     networks:
-      default:
+      cas:
         ipv4_address: ${DFLT_IP_DASHBOARD}
     volumes:
       - $DASHBOARD_VOLUME:/app
 
 networks:
-  default:
+  cas:
     external: true
