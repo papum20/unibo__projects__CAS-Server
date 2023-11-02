@@ -34,6 +34,8 @@ services:
 
 
 networks:
+  default:
+    external: true
   sonarqube:
     name: sonarqube-network
 

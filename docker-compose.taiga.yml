@@ -172,6 +172,8 @@ services:
 
 
 networks:
+  default:
+    external: true
   taiga:
     name: taiga-network
 

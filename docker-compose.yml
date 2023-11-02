@@ -12,7 +12,7 @@ services:
       - ./env/proxy.env
     networks:
       default:
-        ipv4_address: {DFLT_IP_GATEWAY}
+        ipv4_address: ${DFLT_IP_GATEWAY}
     ports:
       - "80:80"
       - "443:443"
