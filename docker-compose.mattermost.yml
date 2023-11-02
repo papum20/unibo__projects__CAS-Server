@@ -36,7 +36,7 @@ services:
     env_file:
       - ./env/mattermost.env
     networks:
-      cas:
+      default:
           ipv4_address: ${DFLT_IP_MATTERMOST}
       mattermost:
     #ports:
@@ -58,7 +58,7 @@ services:
 
 
 networks:
-  cas:
+  default:
     external: true
   mattermost:
     name: mattermost-network
