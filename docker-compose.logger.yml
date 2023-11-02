@@ -10,7 +10,7 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=logger
     networks:
-      - logger
+      logger:
     volumes:
       # seeding scripts
       - ${LOGGER_VOLUME}/entrypoint:/docker-entrypoint-initdb.d
@@ -32,9 +32,9 @@ services:
     depends_on:
       - mongodb
     networks:
-      - default:
+      default:
           ipv4_address: ${DFLT_IP_LOGGER}
-      - logger
+      logger:
 
 
 networks:

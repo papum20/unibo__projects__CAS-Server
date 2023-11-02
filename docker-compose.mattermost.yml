@@ -17,7 +17,7 @@ services:
     env_file:
       - ./env/mattermost.env
     networks:
-      - mattermost
+      mattermost:
     volumes:
       - ${MM_POSTGRES_DATA_PATH}:/var/lib/postgresql/data
 
@@ -36,9 +36,9 @@ services:
     env_file:
       - ./env/mattermost.env
     networks:
-      - default:
+      default:
           ipv4_address: ${DFLT_IP_MATTERMOST}
-      - mattermost
+      mattermost:
     #ports:
       # ports from docker-compose.without-nginx.yml
       #- ${MM_APP_PORT}:8065

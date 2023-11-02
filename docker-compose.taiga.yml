@@ -60,7 +60,7 @@ services:
       retries: 5
       start_period: 3s
     networks:
-      - taiga
+      taiga:
     volumes:
       - taiga-db-data:/var/lib/postgresql/data
 
@@ -76,9 +76,9 @@ services:
       taiga-async-rabbitmq:
         condition: service_started
     networks:
-      - default:
+      default:
           ipv4_address: ${DFLT_IP_TAIGA_BACK}
-      - taiga
+      taiga:
     volumes: *default-back-volumes
 
   taiga-async:
@@ -94,7 +94,7 @@ services:
       taiga-async-rabbitmq:
         condition: service_started
     networks:
-      - taiga
+      taiga:
     volumes: *default-back-volumes
 
   taiga-async-rabbitmq:
@@ -109,7 +109,7 @@ services:
     volumes:
       - taiga-async-rabbitmq-data:/var/lib/rabbitmq
     networks:
-      - taiga
+      taiga:
 
   taiga-front:
     image: taigaio/taiga-front:latest
@@ -122,9 +122,9 @@ services:
       # ...your customizations go here
       PUBLIC_REGISTER_ENABLED: "true"
     networks:
-      - default:
-          ipv4_address: ${DFLT_IP_TAIGA}
-      - taiga
+      default:
+        ipv4_address: ${DFLT_IP_TAIGA}
+      taiga:
     # volumes:
     #   - ./conf.json:/usr/share/nginx/html/conf.json
 
@@ -137,9 +137,9 @@ services:
       RABBITMQ_PASS: "${TAIGA_RABBITMQ_PASS}"
       SECRET_KEY: "${TAIGA_SECRET_KEY}"
     networks:
-      - default:
-          ipv4_address: ${DFLT_IP_TAIGA_EVENTS}
-      - taiga
+      default:
+        ipv4_address: ${DFLT_IP_TAIGA_EVENTS}
+      taiga:
     depends_on:
       taiga-events-rabbitmq:
         condition: service_started
@@ -157,7 +157,7 @@ services:
     volumes:
       - taiga-events-rabbitmq-data:/var/lib/rabbitmq
     networks:
-      - taiga
+      taiga:
 
   taiga-protected:
     image: taigaio/taiga-protected:latest
@@ -166,9 +166,9 @@ services:
       MAX_AGE: "${TAIGA_ATTACHMENTS_MAX_AGE}"
       SECRET_KEY: "${TAIGA_SECRET_KEY}"
     networks:
-      - default:
-          ipv4_address: ${DFLT_IP_TAIGA_PROTECTED}
-      - taiga
+      default:
+        ipv4_address: ${DFLT_IP_TAIGA_PROTECTED}
+      taiga:
 
 
 networks:
