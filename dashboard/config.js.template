@@ -1,9 +1,9 @@
 
 
 export const config = {
-  URL: "${URL}", /* root domain, assuming services are at domain/service (e.g. www.site.com/gitlab) */
+  URL: "stocas.${DOMAIN}", /* root domain, assuming services are at domain/service (e.g. www.site.com/gitlab) */
 
-  PORT_NUMBER: ${PORT_NUMBER}, /* website portnumber? */
+  PORT_NUMBER: 80, /* website portnumber? */
   SONAR_API:"sonarqube-api",
 
   API: {

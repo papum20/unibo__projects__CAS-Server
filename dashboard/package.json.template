@@ -3,7 +3,7 @@
   "author": "Stefano Propato, Salvatore Perri",
   "licence": "MIT",
   "version": "1.0.0",
-  "homepage": "http://${DOMAIN}/dashboard",
+  "homepage": "http://stocas.${DOMAIN}",
   "private": false,
   "scripts": {
     "start": "react-scripts start",
