@@ -23,7 +23,6 @@ RUN apt-get update && \
 # set node version
 RUN npm install --global n && \
     n 16
-RUN npm install --global yarn
 
 RUN git clone https://github.com/papum20/unibo__projects__CAS-dashboard.git CAS-dashboard
 WORKDIR /CAS-dashboard
@@ -34,15 +33,12 @@ COPY ./env/dashboard.env ./.env
 RUN export DOLLAR='$' && set -a && source .env && envsubst < ./package.json.template > ./package.json
 RUN export DOLLAR='$' && set -a && source .env && envsubst < ./src/services/config.js.template > ./src/services/config.js
 
-# RUN yarn upgrade"
-
 # fix security issues; in particular, there was a major change with node17 (https://stackoverflow.com/a/73027407/20607105)
-#RUN npm_config_yes=true npx yarn-audit-fix
 #RUN npm audit fix --force
 
-RUN yarn global add serve
+RUN npm i serve
 # increased timeout needed for slower systems, because @material-ui/icons is quite large (https://github.com/mui/material-ui/issues/12432)
-RUN yarn --network-timeout 500000
-RUN yarn build
+RUN npm i
+RUN npm run build
 # start app
-CMD serve -s build
+CMD npm run serve

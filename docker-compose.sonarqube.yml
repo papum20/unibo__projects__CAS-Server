@@ -5,7 +5,7 @@ services:
   sonarqube:
     container_name: sonarqube
     image: sonarqube:8-community
-    #image: sonarqube
+    restart: unless-stopped
     depends_on:
       - sonar-db
     env_file:
@@ -18,7 +18,10 @@ services:
       default:
           ipv4_address: ${DFLT_IP_SONARQUBE}
       sonarqube:
-    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
 
   sonar-db:
     container_name: sonar-db
