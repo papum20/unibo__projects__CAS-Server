@@ -3,6 +3,7 @@
 ## Installation
 Edit the `.env` files (`.env` and `env/*`); in particular, you need to create files from the `.env.example` removing the `.example` extension.  
 There's a script for creating random credentials in `env/credentials.env`, called `create-credentials.sh`.  
+Edit also `DOMAIN` in dashboard/env.  
 
 Then use `up.sh`.  
 The given commands `down.sh`, `up.sh`, `rebuild.sh`, `ls.sh` respectively execute `docker compose` `down`, `up`, `down && up`, and `docker container ls` after having set up the environment correctly.  
