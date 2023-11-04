@@ -15,7 +15,7 @@ All `FILE.conf.template` in `nginx/conf/` will be converted and used in the prox
 
 Also `nginx/include/` (and `nginx/include-dflt/`) contain params for the confs.  
 
-Finally, nginx's container uses as env files both `env/proxy.env` and `env/proxy-dflt.env`: again, `proxy-dflt.env` (which should be set accordingly) contains the default values, while `proxy.env` can be used for custom ones.   
+Finally, nginx's container uses as env files both `env/proxy.env` and `env/proxy-dflt.env`: again, `proxy-dflt.env` contains the default values, while `proxy.env` can be used for custom ones.   
 
 ## Post-Installation: defaults, fixes, maintenance
 
