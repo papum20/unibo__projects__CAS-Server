@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>stoCAS - Team Production Server</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .service {
+            margin: 20px 0;
+        }
+        .service img {
+            width: 50px;
+            height: 50px;
+        }
+        .service a {
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to stoCAS - Our Team Production Server</h1>
+        <div class="service">
+            <img src="https://about.gitlab.com/images/press/logo/png/gitlab-icon-rgb.png" alt="GitLab">
+            <a href="${LINK_GITLAB}">GitLab</a>
+        </div>
+        <div class="service">
+            <img src="https://taiga.io/images/taiga-logo-vertical-positive.svg" alt="Taiga">
+            <a href="${LINK_TAIGA}">Taiga</a>
+        </div>
+        <div class="service">
+            <img src="https://www.jenkins.io/images/logos/jenkins/jenkins.svg" alt="Jenkins">
+            <a href="${LINK_JENKINS}">Jenkins</a>
+        </div>
+        <div class="service">
+            <img src="https://docs.sonarqube.org/latest/images/SonarQube_rgb.svg" alt="SonarQube">
+            <a href="${LINK_SONARQUBE}">SonarQube</a>
+        </div>
+        <div class="service">
+            <img src="https://via.placeholder.com/50" alt="Logger">
+            <a href="${LINK_LOGGER}">Logger</a>
+        </div>
+        <div class="service">
+            <img src="https://via.placeholder.com/50" alt="Our Website">
+            <a href="${LINK_WEBSITE}">Our Website</a>
+        </div>
+        <div class="service">
+            <p>This site is made possible thanks to <a href="https://freedns.afraid.org/">Free DNS</a>. Free DNS offers free DNS hosting and domain services and helps us keep our site accessible to everyone. We appreciate their support!</p>
+        </div>
+        <p>This site was made by an AI - GitHub Copilot.</p>
+    </div>
+</body>
+</html>

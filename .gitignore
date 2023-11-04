@@ -8,4 +8,3 @@ nginx/conf/*
 !nginx/conf/.gitkeep
 nginx/include/*
 !nginx/include/.gitkeep
-env/proxy-dflt.env
