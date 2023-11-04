@@ -1,7 +1,9 @@
 
 FROM node:20.9.0-bullseye-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init \
+    # envsubst
+    gettext-base
 # only install production dependencies
 ENV NODE_ENV production
 WORKDIR /usr/src/app
@@ -9,10 +11,11 @@ WORKDIR /usr/src/app
 COPY --chown=node:node dashboard .
 # clean install
 RUN npm ci --only=production
-# don't run as root #2
+# don't run as root #2w
 USER node
 
 COPY --chown=node:node dashboard/entrypoint.sh /usr/src/app/
+RUN chmod +x /usr/src/app/entrypoint.sh
 # node isn't suitable to be run as pid 1, dumb-init is like a wrapper
 CMD ["/usr/src/app/entrypoint.sh"]
 
