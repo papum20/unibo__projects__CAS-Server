@@ -2,3 +2,10 @@
 .env
 env/credentials.env
 env/.credentials
+
+# nginx files management
+nginx/conf/*
+!nginx/conf/.gitkeep
+nginx/include/*
+!nginx/include/.gitkeep
+env/proxy-dflt.env

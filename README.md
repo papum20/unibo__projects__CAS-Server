@@ -10,7 +10,12 @@ The given commands `down.sh`, `up.sh`, `rebuild.sh`, `ls.sh` respectively execut
 The command `first-up.sh` should be executed at the first `up`, as initializes something before doing `up`.  
 
 ### Adding your services
-All `FILE.conf.template` in `nginx/conf/` will be converted and used in the proxy configuration. You can add yours in such directory before deploying the containers.  
+
+All `FILE.conf.template` in `nginx/conf/` will be converted and used in the proxy configuration. You can add yours in such directory before deploying the containers. That's the same for `nginx/conf-dflt/`, which are the default ones, so put in a different directory, whereas `nginx/conf/` is ignored by `.gitignore`.  
+
+Also `nginx/include/` (and `nginx/include-dflt/`) contain params for the confs.  
+
+Finally, nginx's container uses as env files both `env/proxy.env` and `env/proxy-dflt.env`: again, `proxy-dflt.env` (which should be set accordingly) contains the default values, while `proxy.env` can be used for custom ones.   
 
 ## Post-Installation: defaults, fixes, maintenance
 
