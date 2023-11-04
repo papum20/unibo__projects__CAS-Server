@@ -7,6 +7,7 @@
   "private": false,
   "scripts": {
     "start": "react-scripts start",
+    "serve": "serve -s build",
     "server": "cd ../innometrics-backend &&  . ${DOLLAR}INNOMETRICS_BACKEND_PATH/innometricsenv/bin/activate && python3 ./api/app.py",
     "db": "sudo service mongod start",
     "build": "react-scripts build",

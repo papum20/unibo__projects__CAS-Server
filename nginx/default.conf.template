@@ -143,7 +143,7 @@ server {
 }
 
 server {
-    server_name: ${DOMAIN};
+    server_name ${DOMAIN};
     listen 80;
 
     location ^~ / {
