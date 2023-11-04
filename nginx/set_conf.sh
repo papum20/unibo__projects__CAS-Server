@@ -8,4 +8,4 @@ do
     envsubst < $file > /etc/nginx/conf.d/$name.conf
 done
 
-nginx -g 'daemon off;'"
+nginx -g 'daemon off;'
