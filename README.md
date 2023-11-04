@@ -9,6 +9,9 @@ Then use `up.sh`.
 The given commands `down.sh`, `up.sh`, `rebuild.sh`, `ls.sh` respectively execute `docker compose` `down`, `up`, `down && up`, and `docker container ls` after having set up the environment correctly.  
 The command `first-up.sh` should be executed at the first `up`, as initializes something before doing `up`.  
 
+### Adding your services
+All `FILE.conf.template` in `nginx/conf/` will be converted and used in the proxy configuration. You can add yours in such directory before deploying the containers.  
+
 ## Post-Installation: defaults, fixes, maintenance
 
 ### Sonarqube

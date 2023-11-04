@@ -1,8 +1,8 @@
 FROM nginx
 
-COPY ./nginx/default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY ./nginx/mattermost_params /etc/nginx/mattermost_params
-COPY ./nginx/proxy_params /etc/nginx/proxy_params
+COPY ./nginx/conf/ /home/conf/
+COPY ./nginx/params/ /etc/nginx/
+COPY ./nginx/set_conf.sh /home/set_conf.sh
 
-CMD /bin/bash -c "export DOLLAR='$' && \
-    envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+RUN chmod +x /home/set_conf.sh
+CMD ["/home/set_conf.sh"]
