@@ -63,10 +63,3 @@ networks:
   mattermost:
     name: mattermost-network
   
-volumes:
-  mattermost_db:
-  mattermost_config:
-  mattermost_data:
-  mattermost_logs:
-  mattermost_plugins:
-  mattermost_client_plugins:

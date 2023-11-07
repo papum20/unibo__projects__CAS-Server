@@ -45,20 +45,24 @@
             <a href="${LINK_GITLAB}">GitLab</a>
         </div>
         <div class="service">
-            <img src="https://picsum.photos/50/1" alt="Taiga">
-            <a href="${LINK_TAIGA}">Taiga</a>
-        </div>
-        <div class="service">
             <img src="https://www.jenkins.io/images/logos/jenkins/jenkins.svg" alt="Jenkins">
             <a href="${LINK_JENKINS}">Jenkins</a>
+        </div>
+        <div class="service">
+            <img src="https://picsum.photos/50/3" alt="Logger">
+            <a href="${LINK_LOGGER}">Logger</a>
+        </div>
+        <div class="service">
+            <img src="https://picsum.photos/50/5" alt="Logger">
+            <a href="${LINK_MATTERMOST}">Mattermost</a>
         </div>
         <div class="service">
             <img src="https://picsum.photos/50/2" alt="SonarQube">
             <a href="${LINK_SONARQUBE}">SonarQube</a>
         </div>
         <div class="service">
-            <img src="https://picsum.photos/50/3" alt="Logger">
-            <a href="${LINK_LOGGER}">Logger</a>
+            <img src="https://picsum.photos/50/1" alt="Taiga">
+            <a href="${LINK_TAIGA}">Taiga</a>
         </div>
         <div class="service">
             <img src="https://picsum.photos/50/4" alt="Our Website">
