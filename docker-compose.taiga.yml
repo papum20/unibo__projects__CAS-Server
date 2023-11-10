@@ -173,6 +173,7 @@ services:
 
 networks:
   default:
+    name: ${NETWORK_NAME_DFLT}
     external: true
   taiga:
     name: taiga-network

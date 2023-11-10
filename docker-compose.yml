@@ -28,7 +28,7 @@ services:
 
 networks:
   default:
-    name: cas-network
+    name: ${NETWORK_NAME_DFLT}
     ipam:
       driver: default
       config:

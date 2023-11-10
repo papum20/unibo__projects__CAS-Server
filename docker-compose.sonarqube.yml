@@ -4,7 +4,7 @@ services:
 
   sonarqube:
     container_name: sonarqube
-    image: sonarqube:8-community
+    image: sonarqube:9.9.2-community
     restart: unless-stopped
     depends_on:
       - sonar-db
@@ -25,7 +25,7 @@ services:
 
   sonar-db:
     container_name: sonar-db
-    image: postgres:12
+    image: postgres:15.4-bullseye
     restart: unless-stopped
     env_file:
       - ./env/sonarqube.env

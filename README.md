@@ -21,13 +21,6 @@ Finally, nginx's container uses as env files both `env/proxy.env` and `env/proxy
 
 ## Post-Installation: defaults, fixes, maintenance
 
-### Sonarqube
-
-Data | value
------|-----
-user | admin
-password | admin
-
 ### Gitlab
 
 Admin's username: `root`.  
@@ -38,28 +31,36 @@ other options at https://docs.gitlab.com/omnibus/installation/#set-up-the-initia
 #### Remove Require admin approval fo signups
 AdminArea-> Settings -> General -> Signup restrictions -> UNTICK Require admin approval for new sign-ups -> Save changes
 
-### Taiga
-
-Data | value
------|-----
-username | admin
-password | 123123
-
 ### Jenkins
-#### Recuperare password iniziale JENKINS
+
+retrieve admin password:  
 ```bash
 $ sudo docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 ```
-#### Abilitare registrazione utenti
-Manage Jenkins -> Configure Global Security ->  Jenkins’ own user database -> -[x] Allow users to sign up
 
-### Logger-server
-- Optional: can update CORS origin
-```bash
-docker exec -it logger su
-[docker] apt install nano
-[docker] nano api/config.py
-```
+Enable signup:  
+Manage Jenkins -> Configure Global  Security ->  Jenkins’ own user  database -> -[x] Allow users to sign up  
+
+Link with SonarQube:  
+1.	create an account for jenkins on your sonarqube  
+2.	give it (as admin) "execute analysis" permissions  
+3.	generate a project token from jenkins account on sonarqube
+4.	follow the configuration tutorial on sonarqube, which will appear after you initialize your first project with gitlab and jenkins
+5.	in jenkins, (after having installed the sonar-scanner plugin) edit the sonar-scanner properties (in my case was `/var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarScanner4# cat conf/sonar-scanner.properties`): properly set `sonar.host.url`, `sonar.login`, `sonar.password`, `sonar.token`
+6.	restart jenkins container and you're (probably) ready to go
+7.	notes: 
+	*	`sonar.password` is deprecated and you should use `sonar.token`, but i'm not sure it works so i use both;
+	*	this was useful: https://stackoverflow.com/questions/50646519/sonarqube-jenkins-asks-for-login-and-password
+
+Use roles for permissions: install Role-based Authorization Strategy plugin.  
+
+### Sonarqube
+
+Initial value: user=admin, password=admin; you will be asked to change the password at first login.  
+Others can't still register, you have to enable it in the admin settings -> authentication, or invite them.  
+I only enabled login and signup with gitlab:
+1.	follow the given instructions in admin settings->authentication: you have to enable the sonarqube application from the admin area of your gitlab, and add the given credentials in the admin panel on sonarqube
+2.	essential, or won't work: set server base url in admin->general (https://forum.gitlab.com/t/authenticate-sonarqube-using-gitlab/37897) (i don't know if it would be the same using `SONAR_HOST_URL`)
 
 ### Nginx
 

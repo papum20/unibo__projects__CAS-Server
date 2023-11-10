@@ -15,11 +15,14 @@ services:
       default:
         ipv4_address: ${DFLT_IP_JENKINS}
     volumes:
-      - /etc/default/jenkins:/var/jenkins_home
-      #- ./jenkins:/var/jenkins_home
+      - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/local/bin/docker:/usr/local/bin/docker
 
 networks:
   default:
+    name: ${NETWORK_NAME_DFLT}
     external: true
+
+volumes:
+  jenkins_home:

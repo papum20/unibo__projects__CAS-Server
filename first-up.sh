@@ -7,7 +7,12 @@ source env/credentials.env
 source .env
 
 # volumes
-mkdir -p ${DASHBOARD_VOLUME} ${GITLAB_VOLUME} ${LOGGER_VOLUME}
+mkdir -p \
+    ${DASHBOARD_VOLUME} \
+    ${GITLAB_VOLUME} \
+    ${GRAFANA_VOLUME_DATA} \
+    ${LOGGER_VOLUME} \
+    ${PROMETHEUS_VOLUME} 
 
 ## mattermost
 mkdir -p ./volumes/app/mattermost/{config,data,logs,plugins,client/plugins,bleve-indexes}
