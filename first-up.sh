@@ -11,7 +11,6 @@ mkdir -p \
     ${DASHBOARD_VOLUME} \
     ${GITLAB_VOLUME} \
     ${GRAFANA_VOLUME_DATA} \
-    ${LOGGER_VOLUME} \
     ${PROMETHEUS_VOLUME} 
 
 ## mattermost

@@ -2,6 +2,7 @@
 
 ## Installation
 Edit the `.env` files (`.env` and `env/*`); in particular, you need to create files from the `.env.example` removing the `.example` extension.  
+Remember to set `LOCAL_DOCKER_GID` in `.env`. It's used to set the proper permissions for bind mounts (useful for backups and migrating server and volumes).  
 There's a script for creating random credentials in `env/credentials.env`, called `create-credentials.sh`.  
 Edit also `DOMAIN` in dashboard/env.  
 

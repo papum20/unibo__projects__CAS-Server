@@ -2,11 +2,15 @@ version: '3.7'
 
 services:
   grafana:
-    image: grafana/grafana-oss:10.2.0-ubuntu
     container_name: grafana
     restart: unless-stopped
     env_file:
       - ./env/grafana.env
+    build:
+      context: ./grafana
+      dockerfile: Dockerfile
+      args:
+        LOCAL_GID: ${LOCAL_DOCKER_GID}
     networks:
       default:
         ipv4_address: ${DFLT_IP_GRAFANA}
@@ -14,7 +18,7 @@ services:
     volumes:
       - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
       - ./grafana/dashboards:/var/lib/grafana/dashboards
-      - '${GRAFANA_VOLUME_DATA}:/var/lib/grafana'
+      - ${GRAFANA_VOLUME_DATA}:/var/lib/grafana
 
   prometheus:
     image: prom/prometheus
@@ -23,9 +27,11 @@ services:
     build:
       context: ./grafana/prometheus
       dockerfile: Dockerfile
+      args:
+        LOCAL_GID: ${LOCAL_DOCKER_GID}
     networks:
       default:
-        ipv4_address: ${DFLT_IP_GRAFANA}
+        ipv4_address: ${DFLT_IP_PROMETHEUS}
       grafana:
     volumes:
       - ./grafana/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
