@@ -32,6 +32,13 @@ other options at https://docs.gitlab.com/omnibus/installation/#set-up-the-initia
 #### Remove Require admin approval fo signups
 AdminArea-> Settings -> General -> Signup restrictions -> UNTICK Require admin approval for new sign-ups -> Save changes
 
+### Grafana
+
+Create `grafana.env` from the example and in case insert info for gitlab oauth.  
+Follow this steps on the grafana docs: 
+*	https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/
+*	https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/gitlab/
+
 ### Jenkins
 
 retrieve admin password:  

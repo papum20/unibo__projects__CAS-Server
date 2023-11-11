@@ -73,13 +73,15 @@ server {
 
     # logging
 
-#    location /grafana/ {
-#        proxy_pass http://grafana:${GRAFANA_PORT};
-#    }
-#
-#    location /prometheus/ {
-#        proxy_pass http://prometheus:${PROMETHEUS_PORT};
-#    }
+    location /grafana/ {
+        proxy_pass http://grafana:${GRAFANA_PORT};
+        include proxy_params;
+    }
+
+    location /prometheus/ {
+        proxy_pass http://prometheus:${PROMETHEUS_PORT}/;
+        include proxy_params;
+    }
 
 
 }
