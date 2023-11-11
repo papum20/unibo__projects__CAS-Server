@@ -2,6 +2,7 @@
 .env
 env/credentials.env
 env/.credentials
+env/grafana.env
 
 # nginx files management
 nginx/conf/*
