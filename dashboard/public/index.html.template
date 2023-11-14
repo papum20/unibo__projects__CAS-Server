@@ -45,6 +45,10 @@
             <a href="${LINK_GITLAB}">GitLab</a>
         </div>
         <div class="service">
+            <img src="https://picsum.photos/50/11" alt="Grafana">
+            <a href="${LINK_GRAFANA}">Grafana</a>
+        </div>
+        <div class="service">
             <img src="https://www.jenkins.io/images/logos/jenkins/jenkins.svg" alt="Jenkins">
             <a href="${LINK_JENKINS}">Jenkins</a>
         </div>
@@ -55,6 +59,10 @@
         <div class="service">
             <img src="https://picsum.photos/50/5" alt="Logger">
             <a href="${LINK_MATTERMOST}">Mattermost</a>
+        </div>
+        <div class="service">
+            <img src="https://picsum.photos/50/13" alt="Prometheus">
+            <a href="${LINK_PROMETHEUS}">Prometheus</a>
         </div>
         <div class="service">
             <img src="https://picsum.photos/50/2" alt="SonarQube">

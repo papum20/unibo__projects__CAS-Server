@@ -7,9 +7,9 @@ ARG LOCAL_GID
 USER root
 # groupadd and usermod: commands not found
 RUN addgroup -g ${LOCAL_GID} docker
-RUN addgroup nobody docker
+RUN addgroup prometheus docker
 
-USER nobody
+USER prometheus
 ENTRYPOINT [ "/bin/prometheus" ]
 
 # add from original Dockerfile:
