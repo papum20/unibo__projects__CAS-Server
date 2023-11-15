@@ -48,19 +48,35 @@ $ sudo docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPasswor
 
 Enable signup:  
 Manage Jenkins -> Configure Global  Security ->  Jenkins’ own user  database -> -[x] Allow users to sign up  
+Use roles for permissions: install Role-based Authorization Strategy plugin.  
 
 Link with SonarQube:  
-1.	create an account for jenkins on your sonarqube  
-2.	give it (as admin) "execute analysis" permissions  
-3.	generate a project token from jenkins account on sonarqube
-4.	follow the configuration tutorial on sonarqube, which will appear after you initialize your first project with gitlab and jenkins
-5.	in jenkins, (after having installed the sonar-scanner plugin) edit the sonar-scanner properties (in my case was `/var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarScanner4# cat conf/sonar-scanner.properties`): properly set `sonar.host.url`, `sonar.login`, `sonar.password`, `sonar.token`
+1.	in sonarqube
+	*	create an account for jenkins on your sonarqube  
+	*	give it (as admin) "execute analysis" permissions  
+	*	generate a project token from jenkins account on sonarqube (accont->security->project token)
+2.	follow the configuration tutorial on sonarqube, which will appear after you initialize your first project with gitlab and 
+3.	in gitlab:
+	*	create hook for project
+	*	create api token for project (permissions: api)
+4.	in jenkins:
+	*	install plugins sonar-scanner, gitlab
+	*	create a tool for sonar-scanner (admin->tools)
+	*	settings->system: add sonarqube installation 
+	*	settings->system: add gitlab installation (https://docs.gitlab.com/ee/integration/jenkins.html), and add api token generated on gitlab from the project page
+5.	in jenkins, edit the sonar-scanner properties (in my case was `/var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarScanner4/conf/sonar-scanner.properties`): properly set `sonar.host.url`, `sonar.login`, `sonar.password`, `sonar.token`
 6.	restart jenkins container and you're (probably) ready to go
-7.	notes: 
+7.	in jenkins, create a project:
+	*	set the script from SCM, git, then set gitlab project url
+	*	set conditions for trigger, set branches to track etc.
+8.	notes: 
 	*	`sonar.password` is deprecated and you should use `sonar.token`, but i'm not sure it works so i use both;
 	*	this was useful: https://stackoverflow.com/questions/50646519/sonarqube-jenkins-asks-for-login-and-password
 
-Use roles for permissions: install Role-based Authorization Strategy plugin.  
+Use node:
+1.	install nodejs plugin
+2.	create tool
+
 
 ### Sonarqube
 
